@@ -1,7 +1,19 @@
 ﻿# CMakeList.txt : Top-level CMake project file, do global configuration
 # and include sub-projects here.
 #
-cmake_minimum_required (VERSION 3.10)
+cmake_minimum_required (VERSION 3.21)
+
+project ("Canvas App" LANGUAGES C CXX)
+
+include(FetchContent)
+
+FetchContent_Declare(
+  SDL3 
+  GIT_REPOSITORY https://github.com/libsdl-org/SDL.git 
+  GIT_TAG release-3.2.0
+)
+
+FetchContent_MakeAvailable(SDL3)
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)
@@ -9,7 +21,6 @@ if (POLICY CMP0141)
   set(CMAKE_MSVC_DEBUG_INFORMATION_FORMAT "$<IF:$<AND:$<C_COMPILER_ID:MSVC>,$<CXX_COMPILER_ID:MSVC>>,$<$<CONFIG:Debug,RelWithDebInfo>:EditAndContinue>,$<$<CONFIG:Debug,RelWithDebInfo>:ProgramDatabase>>")
 endif()
 
-project ("Canvas App")
 
 # Include sub-projects.
-add_subdirectory ("CMakeProject1")
+add_subdirectory ("App Thing")
