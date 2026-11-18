@@ -30,10 +30,15 @@ void renderLines(SDL_Renderer* renderer, const std::vector<Stroke>& lines, const
 
 void mainMenu(SDL_Renderer* renderer)
 {
-	SDL_FRect rect = {100, 100, 200, 150};
+	SDL_FRect rect = {0, 0, 200, 200};
 
 	SDL_SetRenderDrawColor(renderer, 255, 100, 100, 255);
 	SDL_RenderFillRect(renderer, &rect);
+}
+
+void addPoints(float p1, float p2, const std::vector<Stroke>& lines)
+{
+	
 }
 
 int main()
@@ -44,10 +49,14 @@ int main()
 		return 1;
 	}
 
+	float wSizex, wSizey;
+	wSizex = 700;
+	wSizey = 500;
+
 	SDL_Window* window = SDL_CreateWindow(
 		"CanvasApp", 
-		700, 
-		500, 
+		wSizex, 
+		wSizey, 
 		SDL_WINDOW_RESIZABLE
 	);
 
@@ -66,10 +75,14 @@ int main()
 		return 1;
 	}
 
+	SDL_CaptureMouse(true);
+
 	std::vector<Stroke> lines;
 
 	bool running = true;
 	bool redraw = false;
+
+	float mouseX, mouseY;
 
 	while (running)
 	{
@@ -78,7 +91,16 @@ int main()
 		if (SDL_WaitEvent(&event)) {
 			if (event.type == SDL_EVENT_QUIT) {
 				running = false;
-			} else {
+			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
+				mouseX = event.motion.x;
+				mouseY = event.motion.y;
+			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					std::cout << std::to_string(mouseX) + "|" + std::to_string(mouseY) + "\n";
+					addPoints(mouseX, mouseY, lines);
+					redraw = true;
+				}
+			}else {
 				redraw = true;
 			}
 		}
@@ -87,8 +109,14 @@ int main()
 			SDL_SetRenderDrawColor(renderer, 40, 45, 60, 255);
 			SDL_RenderClear(renderer);
 
+			int width, height;
+			SDL_GetWindowSize(window, &width, &height);
+
+			SDL_FRect viewport = {0, 0, static_cast<float>(width), static_cast<float>(height)};
+
 			mainMenu(renderer);
 
+			renderLines(renderer, lines, viewport);
 
 			SDL_RenderPresent(renderer);
 			redraw = false;
