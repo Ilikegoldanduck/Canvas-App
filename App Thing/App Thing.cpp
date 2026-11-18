@@ -6,20 +6,13 @@
 
 using namespace std;
 
-typedef struct Color
+struct Stroke
 {
-	int r;
-	int g;
-	int b;
-	int a;
-} Color;
+	std::vector<SDL_FPoint> points;
+	SDL_Color c;
+	float t;
+};
 
-typedef struct Line
-{
-	float x1, y1;
-	float x2, y2;
-	Color c;
-} Line;
 
 void mainMenu(SDL_Renderer* renderer)
 {
@@ -31,6 +24,7 @@ void mainMenu(SDL_Renderer* renderer)
 
 int main()
 {
+	
 	if (!SDL_Init(SDL_INIT_VIDEO))
 	{
 		return 1;
@@ -58,6 +52,8 @@ int main()
 		return 1;
 	}
 
+	std::vector<Stroke> lines;
+	
 	bool running = true;
 	bool redraw = false;
 
