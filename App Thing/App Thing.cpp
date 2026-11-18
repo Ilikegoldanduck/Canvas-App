@@ -58,9 +58,8 @@ void endPoints(float p1, float p2, Stroke& currLine, std::vector<Stroke>& lines)
 		y1 = std::min(y1, point.y);
 		y2 = std::max(y2, point.y);
 	}
-	currLine.bounds = SDL_FRect(x1, y1, x2 - x1, y2 - y1);
-	lines.push_back(currLine);
-	currLine = {};
+	currLine.bounds = SDL_FRect(x1, y1, x2 - x1 + 2 * currLine.t, y2 - y1 + 2 * currLine.t);
+	lines.push_back(std::move(currLine));
 }
 
 int main()
@@ -71,7 +70,7 @@ int main()
 		return 1;
 	}
 
-	float wSizex, wSizey;
+	int wSizex, wSizey;
 	wSizex = 700;
 	wSizey = 500;
 
