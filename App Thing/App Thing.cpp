@@ -36,9 +36,31 @@ void mainMenu(SDL_Renderer* renderer)
 	SDL_RenderFillRect(renderer, &rect);
 }
 
-void addPoints(float p1, float p2, const std::vector<Stroke>& lines)
+void addPoints(float p1, float p2, Stroke& currLine)
 {
-	
+	currLine.points.push_back(SDL_FPoint(p1, p2));
+}
+
+void endPoints(float p1, float p2, Stroke& currLine, std::vector<Stroke>& lines)
+{
+	currLine.points.push_back(SDL_FPoint(p1, p2));
+	currLine.c = SDL_Color(255, 0, 0, 255);
+	currLine.t = 4;
+	float x1, y1, x2, y2;
+	x1 = currLine.points[0].x;
+	y1 = currLine.points[0].y;
+	x2 = x1;
+	y2 = y1;
+	for (const SDL_FPoint& point : currLine.points)
+	{
+		x1 = std::min(x1, point.x);
+		x2 = std::max(x2, point.x);
+		y1 = std::min(y1, point.y);
+		y2 = std::max(y2, point.y);
+	}
+	currLine.bounds = SDL_FRect(x1, y1, x2 - x1, y2 - y1);
+	lines.push_back(currLine);
+	currLine = {};
 }
 
 int main()
@@ -78,6 +100,7 @@ int main()
 	SDL_CaptureMouse(true);
 
 	std::vector<Stroke> lines;
+	Stroke currLine;
 
 	bool running = true;
 	bool redraw = false;
@@ -96,9 +119,14 @@ int main()
 				mouseY = event.motion.y;
 			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
-					std::cout << std::to_string(mouseX) + "|" + std::to_string(mouseY) + "\n";
-					addPoints(mouseX, mouseY, lines);
-					redraw = true;
+					SDL_Keymod modState = SDL_GetModState();
+					if (modState & SDL_KMOD_CTRL) {
+						endPoints(mouseX, mouseY, currLine, lines);
+					} else {
+						std::cout << std::to_string(mouseX) + "|" + std::to_string(mouseY) + "\n";
+						addPoints(mouseX, mouseY, currLine);
+						redraw = true;
+					}
 				}
 			}else {
 				redraw = true;
