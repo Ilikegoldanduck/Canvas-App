@@ -6,12 +6,27 @@
 
 using namespace std;
 
+typedef struct Color
+{
+	int r;
+	int g;
+	int b;
+	int a;
+} Color;
+
+typedef struct Line
+{
+	float x1, y1;
+	float x2, y2;
+	Color c;
+} Line;
+
 void mainMenu(SDL_Renderer* renderer)
 {
 	SDL_FRect rect = {100, 100, 200, 150};
 
 	SDL_SetRenderDrawColor(renderer, 255, 100, 100, 255);
-	SDL_RenderRect(renderer, &rect);
+	SDL_RenderFillRect(renderer, &rect);
 }
 
 int main()
