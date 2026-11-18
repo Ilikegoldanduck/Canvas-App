@@ -41,6 +41,13 @@ void addPoints(float p1, float p2, Stroke& currLine)
 	currLine.points.push_back(SDL_FPoint(p1, p2));
 }
 
+void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Stroke currLine)
+{
+	currLine.points.push_back(SDL_FPoint(p1, p2));
+	SDL_SetRenderDrawColor(renderer, currLine.c.r, currLine.c.g, currLine.c.b, currLine.c.a);
+	SDL_RenderLines(renderer, currLine.points.data(), static_cast<int>(currLine.points.size()));
+}
+
 void endPoints(float p1, float p2, Stroke& currLine, std::vector<Stroke>& lines)
 {
 	currLine.points.push_back(SDL_FPoint(p1, p2));
@@ -60,6 +67,7 @@ void endPoints(float p1, float p2, Stroke& currLine, std::vector<Stroke>& lines)
 	}
 	currLine.bounds = SDL_FRect(x1, y1, x2 - x1 + 2 * currLine.t, y2 - y1 + 2 * currLine.t);
 	lines.push_back(std::move(currLine));
+	currLine.c = SDL_Color(0, 255, 0, 255);
 }
 
 int main()
@@ -101,10 +109,14 @@ int main()
 	std::vector<Stroke> lines;
 	Stroke currLine;
 
+	currLine.c = SDL_Color(0, 255, 0, 255);
+
 	bool running = true;
 	bool redraw = false;
 
 	float mouseX, mouseY;
+	mouseX = 0;
+	mouseY = 0;
 
 	while (running)
 	{
@@ -116,6 +128,7 @@ int main()
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
 				mouseX = event.motion.x;
 				mouseY = event.motion.y;
+				redraw = true;
 			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					SDL_Keymod modState = SDL_GetModState();
@@ -144,6 +157,8 @@ int main()
 			mainMenu(renderer);
 
 			renderLines(renderer, lines, viewport);
+		
+			renderCurrLine(renderer, mouseX, mouseY, currLine);
 
 			SDL_RenderPresent(renderer);
 			redraw = false;
