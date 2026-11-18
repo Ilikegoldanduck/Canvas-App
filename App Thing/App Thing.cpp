@@ -11,8 +11,22 @@ struct Stroke
 	std::vector<SDL_FPoint> points;
 	SDL_Color c;
 	float t;
+
+	SDL_FRect bounds;
 };
 
+void renderLines(SDL_Renderer* renderer, const std::vector<Stroke>& lines, const SDL_FRect& viewport)
+{	
+	for (const Stroke& stroke : lines)
+	{
+		if (!SDL_HasRectIntersectionFloat(&stroke.bounds, &viewport))
+		{
+			continue;
+		}
+		SDL_SetRenderDrawColor(renderer, stroke.c.r, stroke.c.g, stroke.c.b, stroke.c.a);
+		SDL_RenderLines(renderer, stroke.points.data(), static_cast<int>(stroke.points.size()));
+	}
+}
 
 void mainMenu(SDL_Renderer* renderer)
 {
@@ -53,7 +67,7 @@ int main()
 	}
 
 	std::vector<Stroke> lines;
-	
+
 	bool running = true;
 	bool redraw = false;
 
