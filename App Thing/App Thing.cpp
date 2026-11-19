@@ -6,6 +6,8 @@
 
 using namespace std;
 
+int drawMode = 1;
+
 struct Stroke
 {
 	std::vector<SDL_FPoint> points;
@@ -28,6 +30,13 @@ void renderLines(SDL_Renderer* renderer, const std::vector<Stroke>& lines, const
 	}
 }
 
+void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Stroke currLine)
+{
+	currLine.points.push_back(SDL_FPoint(p1, p2));
+	SDL_SetRenderDrawColor(renderer, currLine.c.r, currLine.c.g, currLine.c.b, currLine.c.a);
+	SDL_RenderLines(renderer, currLine.points.data(), static_cast<int>(currLine.points.size()));
+}
+
 void mainMenu(SDL_Renderer* renderer)
 {
 	SDL_FRect rect = {0, 0, 200, 200};
@@ -36,21 +45,38 @@ void mainMenu(SDL_Renderer* renderer)
 	SDL_RenderFillRect(renderer, &rect);
 }
 
+void redrawScreen(SDL_Renderer* renderer, std::vector<Stroke>& lines, Stroke& currLine, SDL_Window* window)
+{
+	SDL_SetRenderDrawColor(renderer, 40, 45, 60, 255);
+	SDL_RenderClear(renderer);
+
+	int width, height;
+	SDL_GetWindowSize(window, &width, &height);
+
+	float mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+
+	SDL_FRect viewport = {0, 0, static_cast<float>(width), static_cast<float>(height)};
+
+	mainMenu(renderer);
+
+	renderLines(renderer, lines, viewport);
+	renderCurrLine(renderer, mouseX, mouseY, currLine);
+			
+	SDL_RenderPresent(renderer);
+
+}
+
 void addPoints(float p1, float p2, Stroke& currLine)
 {
 	currLine.points.push_back(SDL_FPoint(p1, p2));
 }
 
-void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Stroke currLine)
+void endPoints(std::optional<float> p1, std::optional<float> p2, Stroke& currLine, std::vector<Stroke>& lines)
 {
-	currLine.points.push_back(SDL_FPoint(p1, p2));
-	SDL_SetRenderDrawColor(renderer, currLine.c.r, currLine.c.g, currLine.c.b, currLine.c.a);
-	SDL_RenderLines(renderer, currLine.points.data(), static_cast<int>(currLine.points.size()));
-}
-
-void endPoints(float p1, float p2, Stroke& currLine, std::vector<Stroke>& lines)
-{
-	currLine.points.push_back(SDL_FPoint(p1, p2));
+	if (p1 && p2) {
+		currLine.points.push_back(SDL_FPoint(*p1, *p2));
+	}
 	currLine.c = SDL_Color(255, 0, 0, 255);
 	currLine.t = 4;
 	float x1, y1, x2, y2;
@@ -70,6 +96,41 @@ void endPoints(float p1, float p2, Stroke& currLine, std::vector<Stroke>& lines)
 	currLine.c = SDL_Color(0, 255, 0, 255);
 }
 
+void freeDraw(std::vector<Stroke>& lines, SDL_Renderer* renderer, SDL_Window* window)
+{
+	bool done = false;
+	float mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+
+	Stroke currLine;
+
+	while (! done)
+	{
+		SDL_Event event;
+
+		if (SDL_WaitEvent(&event))
+		{
+			if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					endPoints(mouseX, mouseY, currLine, lines);
+					done = true;	
+					redrawScreen(renderer, lines, currLine, window);
+				}
+			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
+				mouseX = event.motion.x;
+				mouseY = event.motion.y;
+				addPoints(mouseX, mouseY, currLine);
+				redrawScreen(renderer, lines, currLine, window);
+			}
+		}
+
+		if (drawMode != 2) {
+			done = true;
+			endPoints(NAN, NAN, currLine, lines);
+		}
+	}
+}
+
 int main()
 {
 	
@@ -81,6 +142,7 @@ int main()
 	int wSizex, wSizey;
 	wSizex = 700;
 	wSizey = 500;
+
 
 	SDL_Window* window = SDL_CreateWindow(
 		"CanvasApp", 
@@ -115,8 +177,7 @@ int main()
 	bool redraw = false;
 
 	float mouseX, mouseY;
-	mouseX = 0;
-	mouseY = 0;
+	SDL_GetMouseState(&mouseX, &mouseY);
 
 	while (running)
 	{
@@ -128,39 +189,37 @@ int main()
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
 				mouseX = event.motion.x;
 				mouseY = event.motion.y;
-				redraw = true;
 			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					SDL_Keymod modState = SDL_GetModState();
-					if (modState & SDL_KMOD_CTRL) {
-						endPoints(mouseX, mouseY, currLine, lines);
-					} else {
-						std::cout << std::to_string(mouseX) + "|" + std::to_string(mouseY) + "\n";
-						addPoints(mouseX, mouseY, currLine);
-						redraw = true;
+					if (drawMode == 1) {
+						if (modState & SDL_KMOD_CTRL) {
+							endPoints(mouseX, mouseY, currLine, lines);
+							redraw = true;
+						} else {
+							std::cout << std::to_string(mouseX) + "|" + std::to_string(mouseY) + "\n";
+							addPoints(mouseX, mouseY, currLine);
+							redraw = true;
+						}
+					} else if (drawMode == 2) {
+						freeDraw(lines, renderer, window);
 					}
 				}
-			}else {
+			} else if (event.type == SDL_EVENT_KEY_DOWN) {
+				if (event.key.key == SDLK_1) {
+					drawMode = 1;
+				} else if (event.key.key == SDLK_2) {
+					drawMode = 2;
+					endPoints(NAN, NAN, currLine, lines);
+				}
+			} else {
 				redraw = true;
 			}
 		}
 		if (running && redraw) 
 		{
-			SDL_SetRenderDrawColor(renderer, 40, 45, 60, 255);
-			SDL_RenderClear(renderer);
+			redrawScreen(renderer, lines, currLine, window);
 
-			int width, height;
-			SDL_GetWindowSize(window, &width, &height);
-
-			SDL_FRect viewport = {0, 0, static_cast<float>(width), static_cast<float>(height)};
-
-			mainMenu(renderer);
-
-			renderLines(renderer, lines, viewport);
-		
-			renderCurrLine(renderer, mouseX, mouseY, currLine);
-
-			SDL_RenderPresent(renderer);
 			redraw = false;
 		}
 	}
