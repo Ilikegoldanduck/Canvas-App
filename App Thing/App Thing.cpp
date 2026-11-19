@@ -17,6 +17,12 @@ struct Stroke
 	SDL_FRect bounds;
 };
 
+struct Camera
+{
+	float x, y;
+	float zoom;
+};
+
 void renderLines(SDL_Renderer* renderer, const std::vector<Stroke>& lines, const SDL_FRect& viewport)
 {	
 	for (const Stroke& stroke : lines)
@@ -45,7 +51,7 @@ void mainMenu(SDL_Renderer* renderer)
 	SDL_RenderFillRect(renderer, &rect);
 }
 
-void redrawScreen(SDL_Renderer* renderer, std::vector<Stroke>& lines, Stroke& currLine, SDL_Window* window)
+void redrawScreen(SDL_Renderer* renderer, std::vector<Stroke>& lines, Stroke& currLine, SDL_Window* window, Camera c)
 {
 	SDL_SetRenderDrawColor(renderer, 40, 45, 60, 255);
 	SDL_RenderClear(renderer);
@@ -96,13 +102,13 @@ void endPoints(std::optional<float> p1, std::optional<float> p2, Stroke& currLin
 	currLine.c = SDL_Color(0, 255, 0, 255);
 }
 
-void freeDraw(std::vector<Stroke>& lines, SDL_Renderer* renderer, SDL_Window* window)
+void freeDraw(std::vector<Stroke>& lines, SDL_Renderer* renderer, SDL_Window* window, Camera c)
 {
 	bool done = false;
-	float mouseX, mouseY;
-	SDL_GetMouseState(&mouseX, &mouseY);
 
 	Stroke currLine;
+
+	float mouseX, mouseY;
 
 	while (! done)
 	{
@@ -112,21 +118,21 @@ void freeDraw(std::vector<Stroke>& lines, SDL_Renderer* renderer, SDL_Window* wi
 		{
 			if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
-					endPoints(mouseX, mouseY, currLine, lines);
+					endPoints(event.button.x + c.x, event.button.y + c.y, currLine, lines);
 					done = true;	
-					redrawScreen(renderer, lines, currLine, window);
+					redrawScreen(renderer, lines, currLine, window, c);
 				}
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
 				mouseX = event.motion.x;
 				mouseY = event.motion.y;
-				addPoints(mouseX, mouseY, currLine);
-				redrawScreen(renderer, lines, currLine, window);
+				addPoints(mouseX + c.x, mouseY + c.y, currLine);
+				redrawScreen(renderer, lines, currLine, window, c);
 			}
 		}
 
 		if (drawMode != 2) {
 			done = true;
-			endPoints(NAN, NAN, currLine, lines);
+			endPoints(std::nullopt, std::nullopt, currLine, lines);
 		}
 	}
 }
@@ -179,6 +185,11 @@ int main()
 	float mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
 
+	Camera c;
+	c.x = 0;
+	c.y = 0;
+	c.zoom = 1;
+
 	while (running)
 	{
 		SDL_Event event;
@@ -189,28 +200,38 @@ int main()
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
 				mouseX = event.motion.x;
 				mouseY = event.motion.y;
+				redraw = true;
 			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					SDL_Keymod modState = SDL_GetModState();
 					if (drawMode == 1) {
 						if (modState & SDL_KMOD_CTRL) {
-							endPoints(mouseX, mouseY, currLine, lines);
+							endPoints(mouseX + c.x, mouseY + c.y, currLine, lines);
 							redraw = true;
 						} else {
 							std::cout << std::to_string(mouseX) + "|" + std::to_string(mouseY) + "\n";
-							addPoints(mouseX, mouseY, currLine);
+							addPoints(mouseX + c.x, mouseY + c.y, currLine);
 							redraw = true;
 						}
 					} else if (drawMode == 2) {
-						freeDraw(lines, renderer, window);
+						freeDraw(lines, renderer, window, c);
 					}
 				}
 			} else if (event.type == SDL_EVENT_KEY_DOWN) {
+				if (event.key.key == SDLK_UP) {
+					c.y = c.y + 10;
+				} else if (event.key.key == SDLK_DOWN) {
+					c.y = c.y - 10;
+				} else if (event.key.key == SDLK_LEFT) {
+					c.x = c.x - 10;
+				} else if (event.key.key == SDLK_RIGHT) {
+					c.x = c.x + 10;
+				}
 				if (event.key.key == SDLK_1) {
 					drawMode = 1;
 				} else if (event.key.key == SDLK_2) {
 					drawMode = 2;
-					endPoints(NAN, NAN, currLine, lines);
+					endPoints(std::nullopt, std::nullopt, currLine, lines);
 				}
 			} else {
 				redraw = true;
@@ -218,7 +239,7 @@ int main()
 		}
 		if (running && redraw) 
 		{
-			redrawScreen(renderer, lines, currLine, window);
+			redrawScreen(renderer, lines, currLine, window, c);
 
 			redraw = false;
 		}
