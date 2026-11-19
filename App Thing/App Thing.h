@@ -7,5 +7,6 @@
 #include <vector>
 #include <string>
 #include <optional>
+#include <cmath>
 
 // TODO: Reference additional headers your program requires here.

@@ -17,6 +17,25 @@ struct Stroke
 	SDL_FRect bounds;
 };
 
+struct Rect
+{
+	SDL_FPoint point1;
+	SDL_FPoint point2;
+	SDL_Color c;
+	float t;
+
+	SDL_FRect bounds;
+};
+
+struct Canvas
+{
+	std::vector<Stroke> lines;
+	std::vector<Rect> shapes;
+
+	Stroke currLine;
+	Rect currShape;
+};
+
 struct Camera
 {
 	float x, y;
@@ -64,6 +83,12 @@ void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Stroke currLine,
 	SDL_RenderLines(renderer, transformed.data(), static_cast<int>(currLine.points.size()));
 }
 
+void renderCurrShape(SDL_Renderer* renderer, float p1, float p2, Rect currShape, Camera c)
+{
+	SDL_FRect rect = {std::abs(currShape.point1.x - p1)};
+	
+}
+
 void mainMenu(SDL_Renderer* renderer)
 {
 	SDL_FRect rect = {0, 0, 200, 200};
@@ -72,7 +97,7 @@ void mainMenu(SDL_Renderer* renderer)
 	SDL_RenderFillRect(renderer, &rect);
 }
 
-void redrawScreen(SDL_Renderer* renderer, std::vector<Stroke>& lines, Stroke& currLine, SDL_Window* window, Camera c)
+void redrawScreen(SDL_Renderer* renderer, std::vector<Stroke>& lines, Stroke& currLine, Rect& currShape, SDL_Window* window, Camera c)
 {
 	SDL_SetRenderDrawColor(renderer, 40, 45, 60, 255);
 	SDL_RenderClear(renderer);
@@ -88,7 +113,11 @@ void redrawScreen(SDL_Renderer* renderer, std::vector<Stroke>& lines, Stroke& cu
 	mainMenu(renderer);
 
 	renderLines(renderer, lines, viewport, c);
-	renderCurrLine(renderer, mouseX, mouseY, currLine, c);
+	if (drawMode == 1 || drawMode == 2) {
+		renderCurrLine(renderer, mouseX, mouseY, currLine, c);
+	} else if (drawMode == 3) {
+		renderCurrShape(renderer, mouseX, mouseY, currShape, c);
+	}
 			
 	SDL_RenderPresent(renderer);
 
@@ -121,6 +150,41 @@ void endPoints(std::optional<float> p1, std::optional<float> p2, Stroke& currLin
 	currLine.bounds = SDL_FRect(x1, y1, x2 - x1 + 2 * currLine.t, y2 - y1 + 2 * currLine.t);
 	lines.push_back(std::move(currLine));
 	currLine.c = SDL_Color(0, 255, 0, 255);
+}
+
+void shapeDraw(std::vector<Rect>& shapes, SDL_Renderer* renderer, SDL_Window* window, Camera c)
+{
+	bool done = false;
+
+	Stroke currLine;
+
+	float mouseX, mouseY;
+
+	while (! done)
+	{
+		SDL_Event event;
+
+		if (SDL_WaitEvent(&event))
+		{
+			if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					endPoints(event.button.x + c.x, event.button.y + c.y, currLine, lines);
+					done = true;	
+					redrawScreen(renderer, lines, currLine, window, c);
+				}
+			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
+				mouseX = event.motion.x;
+				mouseY = event.motion.y;
+				addPoints(mouseX + c.x, mouseY + c.y, currLine);
+				redrawScreen(renderer, lines, currLine, window, c);
+			}
+		}
+
+		if (drawMode != 2) {
+			done = true;
+			endPoints(std::nullopt, std::nullopt, currLine, lines);
+		}
+	}
 }
 
 void freeDraw(std::vector<Stroke>& lines, SDL_Renderer* renderer, SDL_Window* window, Camera c)
@@ -196,7 +260,9 @@ int main()
 	SDL_CaptureMouse(true);
 
 	std::vector<Stroke> lines;
+	std::vector<Rect> shapes;
 	Stroke currLine;
+	Rect currShape;
 
 	currLine.c = SDL_Color(0, 255, 0, 255);
 
@@ -236,6 +302,8 @@ int main()
 						}
 					} else if (drawMode == 2) {
 						freeDraw(lines, renderer, window, c);
+					} else if (drawMode == 3) {
+						shapeDraw(shapes, renderer, window, c);
 					}
 				}
 			} else if (event.type == SDL_EVENT_KEY_DOWN) {
