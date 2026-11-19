@@ -44,7 +44,7 @@ struct Canvas
 	Camera c;
 };
 
-void renderLines(SDL_Renderer* renderer, Canvas currCanvas, const SDL_FRect& viewport)
+void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& viewport)
 {	
 	std::vector<SDL_FPoint> transformed;
 	for (const Stroke& stroke : currCanvas.lines)
@@ -99,7 +99,7 @@ void mainMenu(SDL_Renderer* renderer)
 	SDL_RenderFillRect(renderer, &rect);
 }
 
-void redrawScreen(SDL_Renderer* renderer, Canvas currCanvas, SDL_Window* window)
+void redrawScreen(SDL_Renderer* renderer, Canvas& currCanvas, SDL_Window* window)
 {
 	SDL_SetRenderDrawColor(renderer, 40, 45, 60, 255);
 	SDL_RenderClear(renderer);
@@ -124,12 +124,12 @@ void redrawScreen(SDL_Renderer* renderer, Canvas currCanvas, SDL_Window* window)
 	SDL_RenderPresent(renderer);
 }
 
-void addPoints(float p1, float p2, Canvas currCanvas)
+void addPoints(float p1, float p2, Canvas& currCanvas)
 {
 	currCanvas.currLine.points.push_back(SDL_FPoint(p1, p2));
 }
 
-void endPoints(std::optional<float> p1, std::optional<float> p2, Canvas currCanvas)
+void endPoints(std::optional<float> p1, std::optional<float> p2, Canvas& currCanvas)
 {
 	if (p1 && p2) {
 		currCanvas.currLine.points.push_back(SDL_FPoint(*p1, *p2));
@@ -153,7 +153,7 @@ void endPoints(std::optional<float> p1, std::optional<float> p2, Canvas currCanv
 	currCanvas.currLine.c = SDL_Color(0, 255, 0, 255);
 }
 
-void shapeDraw(Canvas currCanvas, SDL_Renderer* renderer, SDL_Window* window)
+void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 {
 	bool done = false;
 
@@ -186,11 +186,9 @@ void shapeDraw(Canvas currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 	}
 }
 
-void freeDraw(Canvas currCanvas, SDL_Renderer* renderer, SDL_Window* window)
+void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 {
 	bool done = false;
-
-	Stroke currLine;
 
 	float mouseX, mouseY;
 
@@ -263,6 +261,7 @@ int main()
 	currCanvas.c.y = 0;
 
 	currCanvas.currLine.c = SDL_Color(0, 255, 0, 255);
+	currCanvas.currShape.c = SDL_Color(0, 255, 0, 255);
 
 	bool running = true;
 	bool redraw = false;
