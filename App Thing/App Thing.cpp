@@ -87,8 +87,17 @@ void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Canvas currCanva
 
 void renderCurrShape(SDL_Renderer* renderer, float p1, float p2, Canvas currCanvas)
 {
-	SDL_FRect rect = {std::abs(currCanvas.currShape.point1.x - p1)};
-	
+	if (currCanvas.currShape.point1.x && currCanvas.currShape.point1.y) {
+		SDL_FRect rect = {std::abs(currCanvas.currShape.point1.x - p1), std::abs(currCanvas.currShape.point1.y - p2), std::min(currCanvas.currShape.point1.x, p1), std::min(currCanvas.currShape.point1.y, p2)};
+		
+		SDL_SetRenderDrawColor(renderer, currCanvas.currShape.c.r, currCanvas.currShape.c.g, currCanvas.currShape.c.b, currCanvas.currShape.c.a);
+		SDL_RenderRect(renderer, &rect);
+	}
+}
+
+void shapeFirstPoint(float p1, float p2, Canvas currCanvas)
+{
+	currCanvas.currShape.point1 = SDL_FPoint(p1, p2);
 }
 
 void mainMenu(SDL_Renderer* renderer)
@@ -126,7 +135,7 @@ void redrawScreen(SDL_Renderer* renderer, Canvas currCanvas, SDL_Window* window)
 
 void addPoints(float p1, float p2, Canvas& currCanvas)
 {
-	currCanvas.currLine.points.push_back(SDL_FPoint(p1, p2));
+	currCanvas.currLine.points.push_back(SDL_FPoint(p1 + currCanvas.c.x, p2 + currCanvas.c.y));
 }
 
 void endPoints(std::optional<float> p1, std::optional<float> p2, Canvas& currCanvas)
@@ -167,7 +176,8 @@ void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 		{
 			if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
-					endPoints(event.button.x + currCanvas.c.x, event.button.y + currCanvas.c.y, currCanvas);
+					currCanvas.currShape.point2 = SDL_FPoint(event.button.x + currCanvas.c.x, event.button.y + currCanvas.c.y);
+					currCanvas.shapes.push_back(std::move(currCanvas.currShape));
 					done = true;	
 					redrawScreen(renderer, currCanvas, window);
 				}
@@ -205,9 +215,6 @@ void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 					redrawScreen(renderer, currCanvas, window);
 				}
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
-				mouseX = event.motion.x;
-				mouseY = event.motion.y;
-				addPoints(mouseX + currCanvas.c.x, mouseY + currCanvas.c.y, currCanvas);
 				redrawScreen(renderer, currCanvas, window);
 			}
 		}
@@ -295,6 +302,7 @@ int main()
 					} else if (drawMode == 2) {
 						freeDraw(currCanvas, renderer, window);
 					} else if (drawMode == 3) {
+						shapeFirstPoint(mouseX, mouseY, currCanvas);
 						shapeDraw(currCanvas, renderer, window);
 					}
 				}
@@ -318,6 +326,9 @@ int main()
 					changeMode = true;
 				} else if (event.key.key == SDLK_2) {
 					drawMode = 2;
+					changeMode = true;
+				} else if (event.key.key == SDLK_3) {
+					drawMode = 3;
 					changeMode = true;
 				}
 				if (changeMode) {
