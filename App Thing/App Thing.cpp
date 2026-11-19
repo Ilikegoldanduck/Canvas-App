@@ -23,8 +23,9 @@ struct Camera
 	float zoom;
 };
 
-void renderLines(SDL_Renderer* renderer, const std::vector<Stroke>& lines, const SDL_FRect& viewport)
+void renderLines(SDL_Renderer* renderer, const std::vector<Stroke>& lines, const SDL_FRect& viewport, Camera c)
 {	
+	std::vector<SDL_FPoint> transformed;
 	for (const Stroke& stroke : lines)
 	{
 		if (!SDL_HasRectIntersectionFloat(&stroke.bounds, &viewport))
@@ -32,15 +33,35 @@ void renderLines(SDL_Renderer* renderer, const std::vector<Stroke>& lines, const
 			continue;
 		}
 		SDL_SetRenderDrawColor(renderer, stroke.c.r, stroke.c.g, stroke.c.b, stroke.c.a);
-		SDL_RenderLines(renderer, stroke.points.data(), static_cast<int>(stroke.points.size()));
+
+		transformed.clear();
+		transformed.reserve(stroke.points.size());
+
+		for (const SDL_FPoint& p : stroke.points)
+		{
+			transformed.push_back({
+				(p.x - c.x),
+				(p.y - c.y)
+			});
+		}
+		SDL_RenderLines(renderer, transformed.data(), static_cast<int>(stroke.points.size()));
 	}
 }
 
-void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Stroke currLine)
+void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Stroke currLine, Camera c)
 {
 	currLine.points.push_back(SDL_FPoint(p1, p2));
 	SDL_SetRenderDrawColor(renderer, currLine.c.r, currLine.c.g, currLine.c.b, currLine.c.a);
-	SDL_RenderLines(renderer, currLine.points.data(), static_cast<int>(currLine.points.size()));
+	std::vector<SDL_FPoint> transformed;
+	
+	for (const SDL_FPoint& p : currLine.points)
+	{
+		transformed.push_back({
+			(p.x - c.x),
+			(p.y - c.y)
+		});
+	}
+	SDL_RenderLines(renderer, transformed.data(), static_cast<int>(currLine.points.size()));
 }
 
 void mainMenu(SDL_Renderer* renderer)
@@ -62,12 +83,12 @@ void redrawScreen(SDL_Renderer* renderer, std::vector<Stroke>& lines, Stroke& cu
 	float mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
 
-	SDL_FRect viewport = {0, 0, static_cast<float>(width), static_cast<float>(height)};
+	SDL_FRect viewport = {c.x, c.y, static_cast<float>(width), static_cast<float>(height)};
 
 	mainMenu(renderer);
 
-	renderLines(renderer, lines, viewport);
-	renderCurrLine(renderer, mouseX, mouseY, currLine);
+	renderLines(renderer, lines, viewport, c);
+	renderCurrLine(renderer, mouseX, mouseY, currLine, c);
 			
 	SDL_RenderPresent(renderer);
 
@@ -220,12 +241,16 @@ int main()
 			} else if (event.type == SDL_EVENT_KEY_DOWN) {
 				if (event.key.key == SDLK_UP) {
 					c.y = c.y + 10;
+					redraw = true;
 				} else if (event.key.key == SDLK_DOWN) {
 					c.y = c.y - 10;
+					redraw = true;
 				} else if (event.key.key == SDLK_LEFT) {
 					c.x = c.x - 10;
+					redraw = true;
 				} else if (event.key.key == SDLK_RIGHT) {
 					c.x = c.x + 10;
+					redraw = true;
 				}
 				if (event.key.key == SDLK_1) {
 					drawMode = 1;
