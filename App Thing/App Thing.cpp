@@ -88,14 +88,14 @@ void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Canvas currCanva
 void renderCurrShape(SDL_Renderer* renderer, float p1, float p2, Canvas currCanvas)
 {
 	if (currCanvas.currShape.point1.x && currCanvas.currShape.point1.y) {
-		SDL_FRect rect = {std::abs(currCanvas.currShape.point1.x - p1), std::abs(currCanvas.currShape.point1.y - p2), std::min(currCanvas.currShape.point1.x, p1), std::min(currCanvas.currShape.point1.y, p2)};
+		SDL_FRect rect = {std::min(currCanvas.currShape.point1.x, p1), std::min(currCanvas.currShape.point1.y, p2), std::abs(currCanvas.currShape.point1.x - p1), std::abs(currCanvas.currShape.point1.y - p2)};
 		
 		SDL_SetRenderDrawColor(renderer, currCanvas.currShape.c.r, currCanvas.currShape.c.g, currCanvas.currShape.c.b, currCanvas.currShape.c.a);
 		SDL_RenderRect(renderer, &rect);
 	}
 }
 
-void shapeFirstPoint(float p1, float p2, Canvas currCanvas)
+void shapeFirstPoint(float p1, float p2, Canvas& currCanvas)
 {
 	currCanvas.currShape.point1 = SDL_FPoint(p1, p2);
 }
@@ -166,8 +166,6 @@ void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 {
 	bool done = false;
 
-	float mouseX, mouseY;
-
 	while (! done)
 	{
 		SDL_Event event;
@@ -178,20 +176,12 @@ void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					currCanvas.currShape.point2 = SDL_FPoint(event.button.x + currCanvas.c.x, event.button.y + currCanvas.c.y);
 					currCanvas.shapes.push_back(std::move(currCanvas.currShape));
-					done = true;	
+					done = true;
 					redrawScreen(renderer, currCanvas, window);
 				}
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
-				mouseX = event.motion.x;
-				mouseY = event.motion.y;
-				addPoints(mouseX + currCanvas.c.x, mouseY + currCanvas.c.y, currCanvas);
 				redrawScreen(renderer, currCanvas, window);
 			}
-		}
-
-		if (drawMode != 2) {
-			done = true;
-			endPoints(std::nullopt, std::nullopt, currCanvas);
 		}
 	}
 }
@@ -215,6 +205,9 @@ void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 					redrawScreen(renderer, currCanvas, window);
 				}
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
+				mouseX = event.motion.x;
+				mouseY = event.motion.y;
+				addPoints(mouseX, mouseY, currCanvas);
 				redrawScreen(renderer, currCanvas, window);
 			}
 		}
@@ -296,7 +289,7 @@ int main()
 							redraw = true;
 						} else {
 							std::cout << std::to_string(mouseX) + "|" + std::to_string(mouseY) + "\n";
-							addPoints(mouseX + currCanvas.c.x, mouseY + currCanvas.c.y, currCanvas);
+							addPoints(mouseX, mouseY, currCanvas);
 							redraw = true;
 						}
 					} else if (drawMode == 2) {
