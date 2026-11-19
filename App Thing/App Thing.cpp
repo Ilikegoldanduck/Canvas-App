@@ -50,7 +50,7 @@ void renderLines(SDL_Renderer* renderer, const std::vector<Stroke>& lines, const
 
 void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Stroke currLine, Camera c)
 {
-	currLine.points.push_back(SDL_FPoint(p1, p2));
+	currLine.points.push_back(SDL_FPoint(p1 + c.x, p2 + c.y));
 	SDL_SetRenderDrawColor(renderer, currLine.c.r, currLine.c.g, currLine.c.b, currLine.c.a);
 	std::vector<SDL_FPoint> transformed;
 	
@@ -240,10 +240,10 @@ int main()
 				}
 			} else if (event.type == SDL_EVENT_KEY_DOWN) {
 				if (event.key.key == SDLK_UP) {
-					c.y = c.y + 10;
+					c.y = c.y - 10;
 					redraw = true;
 				} else if (event.key.key == SDLK_DOWN) {
-					c.y = c.y - 10;
+					c.y = c.y + 10;
 					redraw = true;
 				} else if (event.key.key == SDLK_LEFT) {
 					c.x = c.x - 10;
