@@ -99,7 +99,7 @@ void mainMenu(SDL_Renderer* renderer)
 	SDL_RenderFillRect(renderer, &rect);
 }
 
-void redrawScreen(SDL_Renderer* renderer, Canvas& currCanvas, SDL_Window* window)
+void redrawScreen(SDL_Renderer* renderer, Canvas currCanvas, SDL_Window* window)
 {
 	SDL_SetRenderDrawColor(renderer, 40, 45, 60, 255);
 	SDL_RenderClear(renderer);
@@ -312,11 +312,18 @@ int main()
 					currCanvas.c.x = currCanvas.c.x + 10;
 					redraw = true;
 				}
+				bool changeMode = false;
 				if (event.key.key == SDLK_1) {
 					drawMode = 1;
+					changeMode = true;
 				} else if (event.key.key == SDLK_2) {
 					drawMode = 2;
-					endPoints(std::nullopt, std::nullopt, currCanvas);
+					changeMode = true;
+				}
+				if (changeMode) {
+					if (!currCanvas.currLine.points.empty()) {
+						endPoints(std::nullopt, std::nullopt, currCanvas);
+					}
 				}
 			} else {
 				redraw = true;
