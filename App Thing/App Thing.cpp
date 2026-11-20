@@ -133,8 +133,11 @@ bool checkRoundedCollision(float p1, float p2, Rect rectangle)
 	return std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round;
 }
 
-bool checkRoundedCollision(float p1, float p2, menuRect rect)
+bool checkRoundedMenuCollision(float p1, float p2, menuRect rect, SDL_Window* window)
 {
+	int width, height;
+	SDL_GetWindowSize(window, &width, &height);
+
 	Rect rectangle = rect.rect;
 
 	SDL_FPoint pt1 = rectangle.point1;
@@ -145,7 +148,7 @@ bool checkRoundedCollision(float p1, float p2, menuRect rect)
 		rad = std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2);
 	}
 
-	float cx = std::max(std::min(pt1.x, pt2.x) + rad, std::min(p1, std::max(pt1.x, pt2.x) - rad));
+	float cx = std::max(width / 2 - std::abs(rectangle.point1.x - rectangle.point2.x) + std::min(pt1.x, pt2.x) + rad, width / 2 - std::abs(rectangle.point1.x - rectangle.point2.x) + std::min(p1, std::max(pt1.x, pt2.x) - rad));
 	float cy = std::max(std::min(pt1.y, pt2.y) + rad, std::min(p2, std::max(pt1.y, pt2.y) - rad));
 
 	std::cout << std::to_string(cx) + "\n";
@@ -179,17 +182,20 @@ void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& vi
 	}
 }
 
-void renderSpecificMenuShape(SDL_Renderer* renderer, menuRect rect)
+void renderSpecificMenuShape(SDL_Renderer* renderer, menuRect rect, SDL_Window* window)
 {
+	int width, height;
+	SDL_GetWindowSize(window, &width, &height);
+	
 	std::vector<SDL_FPoint> temp;
 	Rect rectangle = rect.rect;
+
 	SDL_SetRenderDrawColor(renderer, rectangle.c.r, rectangle.c.g, rectangle.c.b, rectangle.c.a);
 	for (SDL_FPoint temptemp : rectangle.completedShape) {
-		temptemp.x = (temptemp.x - (std::abs(rectangle.point1.x - rectangle.point2.x) / 2));
-		temptemp.y = (temptemp.y - (std::abs(rectangle.point1.y - rectangle.point2.y) / 2));
+		temptemp.x = (width / 2 - std::abs(rectangle.point1.x - rectangle.point2.x) + temptemp.x); //uhh so basically middle to the right to the half of the width of the rectangle
 		temp.push_back(temptemp);
 	}
-	SDL_RenderLines(renderer, rectangle.completedShape.data(), static_cast<int>(rectangle.completedShape.size()));
+	SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
 }
 
 void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Canvas currCanvas)
@@ -231,10 +237,10 @@ void shapeSecondPoint(float p1, float p2, Canvas& currCanvas)
 	currCanvas.shapes.push_back(std::move(currCanvas.currShape));
 }
 
-void menu(SDL_Renderer* renderer, std::vector<menuRect> menuBox)
+void menu(SDL_Renderer* renderer, std::vector<menuRect> menuBox, SDL_Window* window)
 {	
 	for (const menuRect temp : menuBox) {
-		renderSpecificMenuShape(renderer, temp);
+		renderSpecificMenuShape(renderer, temp, window);
 	}
 }
 
@@ -258,7 +264,7 @@ void redrawScreen(SDL_Renderer* renderer, Canvas currCanvas, SDL_Window* window)
 		renderCurrShape(renderer, mouseX, mouseY, currCanvas);
 	}
 
-	menu(renderer, currCanvas.menuTable);
+	menu(renderer, currCanvas.menuTable, window);
 	
 	SDL_RenderPresent(renderer);
 }
@@ -368,8 +374,9 @@ void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas currCa
 	}
 }
 
-void createMenu(Canvas currCanvas)
-{
+void createMenu(Canvas& currCanvas)
+{	//Might change design to be more like a bar that you can just move around idk
+	
 	currCanvas.menuTable.push_back(createMenuRect(SDL_FPoint(0, 10), SDL_FPoint(300, 110), SDL_Color(255, 0, 0, 255), 1, 20, 0, 0));
 	currCanvas.menuTable.push_back(createMenuRect(SDL_FPoint(100, 60), SDL_FPoint(300, 300), SDL_Color(255, 0, 0, 255), 1, 20, 0, 0));
 }
@@ -440,7 +447,7 @@ int main()
 			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					SDL_Keymod modState = SDL_GetModState();
-					if (checkRoundedCollision(mouseX, mouseY, currCanvas.menuTable[0])) {
+					if (checkRoundedMenuCollision(mouseX, mouseY, currCanvas.menuTable[0], window)) {
 						std::cout << "done!";
 					} else if (drawMode == 1) {
 						if (modState & SDL_KMOD_CTRL) {
