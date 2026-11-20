@@ -48,6 +48,21 @@ struct Canvas
 	Camera c;
 };
 
+bool checkRoundedCollision(float p1, float p2, Rect& rectangle)
+{
+	SDL_FPoint pt1 = rectangle.point1;
+	SDL_FPoint pt2 = rectangle.point2;
+	
+	float rad = rectangle.round;
+	if (rectangle.round > std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2)) {
+		rad = std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2);
+	}
+
+	float cx = std::max(std::min(pt1.x, pt2.x) + rad, std::min(p1, std::min(pt1.x, pt2.x) - rad));
+	float cy = std::max(std::min(pt1.y, pt2.y) + rad, std::min(p2, std::min(pt1.y, pt2.y) - rad));
+	return std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round;
+}
+
 void createRoundedRectangle(SDL_Renderer* renderer, Rect& rectangle)
 {
 	std::vector<SDL_FPoint> temp;
@@ -66,8 +81,6 @@ void createRoundedRectangle(SDL_Renderer* renderer, Rect& rectangle)
 		SDL_FPoint(std::min(p1.x, p2.x) + rad, std::min(p1.y, p2.y) + rad),
 		SDL_FPoint(std::max(p1.x, p2.x) - rad, std::min(p1.y, p2.y) + rad)
 	};
-
-	//so theorhetically you'd have to find if p1 is bigger than p2 or not and that's not something i would like to do so! i'll be lazy and do smth..
 
 	for (int c = 0; c < 4; c++) {
 		for (int i = 0; i < 90; i++) {
