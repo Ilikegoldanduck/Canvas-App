@@ -71,11 +71,13 @@ void createRoundedRectangle(SDL_Renderer* renderer, Rect& rectangle)
 
 	for (int c = 0; c < 4; c++) {
 		for (int i = 0; i < 90; i++) {
-			int theta = (90 * c + i) * std::numbers::pi / 180;
-			SDL_FPoint pt = SDL_FPoint(corners[c].x + (rad * std::sin(theta)), corners[c].y + (rad * std::cos(theta)));
+			float theta = (90 * c + i) * std::numbers::pi_v<float> / 180.0f;
+			SDL_FPoint pt = SDL_FPoint(corners[c].x + (rad * std::cos(theta)), corners[c].y + (rad * std::sin(theta)));
 			temp.push_back({pt});
 		}
 	}
+
+	temp.push_back(SDL_FPoint(std::max(p1.x, p2.x), std::max(p1.y, p2.y) - rad));
 
 	SDL_SetRenderDrawColor(renderer, rectangle.c.r, rectangle.c.g, rectangle.c.b, rectangle.c.a);
 	SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
