@@ -59,7 +59,7 @@ void createRoundedRectangle(SDL_Renderer* renderer, Rect rectangle)
 	if (rectangle.round > std::min(std::abs(p1.x - p2.x) / 2, std::abs(p1.y - p2.y) / 2)) {
 		rad = std::min(std::abs(p1.x - p2.x) / 2, std::abs(p1.y - p2.y) / 2);
 	}
-
+	//thing thing
 	SDL_FPoint corners[4] = {
 		SDL_FPoint(std::max(p1.x, p2.x) - rad, std::max(p1.y, p2.y) - rad),
 		SDL_FPoint(std::min(p1.x, p2.x) + rad, std::max(p1.y, p2.y) - rad),
