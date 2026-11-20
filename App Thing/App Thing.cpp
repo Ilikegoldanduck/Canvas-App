@@ -31,39 +31,7 @@ struct Rect
 	std::vector<SDL_FPoint> completedShape;
 };
 
-struct Camera
-{
-	float x, y;
-	float zoom;
-};
-
-struct Canvas
-{
-	std::vector<Stroke> lines;
-	std::vector<Rect> shapes;
-
-	Stroke currLine;
-	Rect currShape;
-
-	Camera c;
-};
-
-bool checkRoundedCollision(float p1, float p2, Rect& rectangle)
-{
-	SDL_FPoint pt1 = rectangle.point1;
-	SDL_FPoint pt2 = rectangle.point2;
-	
-	float rad = rectangle.round;
-	if (rectangle.round > std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2)) {
-		rad = std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2);
-	}
-
-	float cx = std::max(std::min(pt1.x, pt2.x) + rad, std::min(p1, std::min(pt1.x, pt2.x) - rad));
-	float cy = std::max(std::min(pt1.y, pt2.y) + rad, std::min(p2, std::min(pt1.y, pt2.y) - rad));
-	return std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round;
-}
-
-void createRoundedRectangle(SDL_Renderer* renderer, Rect& rectangle)
+void createRoundedRectangle(Rect& rectangle)
 {
 	std::vector<SDL_FPoint> temp;
 
@@ -92,8 +60,59 @@ void createRoundedRectangle(SDL_Renderer* renderer, Rect& rectangle)
 
 	temp.push_back(SDL_FPoint(std::max(p1.x, p2.x), std::max(p1.y, p2.y) - rad));
 
-	SDL_SetRenderDrawColor(renderer, rectangle.c.r, rectangle.c.g, rectangle.c.b, rectangle.c.a);
-	SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
+	rectangle.completedShape = temp;
+}
+
+Rect createRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r)
+{
+	Rect temp;
+	temp.point1 = p1;
+	temp.point2 = p2;
+	temp.c = c;
+	temp.t = t;
+	temp.round = r;
+
+	createRoundedRectangle(temp);
+
+	return temp;
+}
+
+struct Camera
+{
+	float x, y;
+	float zoom;
+};
+
+struct Canvas
+{
+	std::vector<Stroke> lines;
+	std::vector<Rect> shapes;
+
+	Stroke currLine;
+	Rect currShape;
+
+	Camera c;
+
+	//Temp stuff
+	std::vector<Rect> menuTable;
+};
+
+bool checkRoundedCollision(float p1, float p2, Rect rectangle)
+{
+	SDL_FPoint pt1 = rectangle.point1;
+	SDL_FPoint pt2 = rectangle.point2;
+	
+	float rad = rectangle.round;
+	if (rectangle.round > std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2)) {
+		rad = std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2);
+	}
+
+	float cx = std::max(std::min(pt1.x, pt2.x) + rad, std::min(p1, std::max(pt1.x, pt2.x) - rad));
+	float cy = std::max(std::min(pt1.y, pt2.y) + rad, std::min(p2, std::max(pt1.y, pt2.y) - rad));
+
+	std::cout << std::to_string(cx) + "\n";
+	std::cout << std::to_string(cy) + "\n";
+	return std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round;
 }
 
 void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& viewport)
@@ -120,6 +139,12 @@ void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& vi
 
 		SDL_RenderLines(renderer, transformed.data(), static_cast<int>(stroke.points.size()));
 	}
+}
+
+void renderSpecificShape(SDL_Renderer* renderer, Rect rectangle)
+{
+	SDL_SetRenderDrawColor(renderer, rectangle.c.r, rectangle.c.g, rectangle.c.b, rectangle.c.a);
+	SDL_RenderLines(renderer, rectangle.completedShape.data(), static_cast<int>(rectangle.completedShape.size()));
 }
 
 void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Canvas currCanvas)
@@ -161,15 +186,11 @@ void shapeSecondPoint(float p1, float p2, Canvas& currCanvas)
 	currCanvas.shapes.push_back(std::move(currCanvas.currShape));
 }
 
-void menu(SDL_Renderer* renderer)
+void menu(SDL_Renderer* renderer, std::vector<Rect> menuBox)
 {
-	Rect box;
-	box.point1 = SDL_FPoint(100, 100);
-	box.point2 = SDL_FPoint(300, 300);
-	box.c = SDL_Color(255, 0, 0, 255);
-	box.round = 20;
-
-	createRoundedRectangle(renderer, box);
+	for (const Rect temp : menuBox) {
+		renderSpecificShape(renderer, temp);
+	}
 }
 
 void redrawScreen(SDL_Renderer* renderer, Canvas currCanvas, SDL_Window* window)
@@ -192,7 +213,7 @@ void redrawScreen(SDL_Renderer* renderer, Canvas currCanvas, SDL_Window* window)
 		renderCurrShape(renderer, mouseX, mouseY, currCanvas);
 	}
 
-	menu(renderer);
+	menu(renderer, currCanvas.menuTable);
 	
 	SDL_RenderPresent(renderer);
 }
@@ -345,6 +366,8 @@ int main()
 
 	currCanvas.currLine.c = SDL_Color(0, 255, 0, 255);
 	currCanvas.currShape.c = SDL_Color(0, 255, 0, 255);
+	
+	currCanvas.menuTable.push_back(createRect(SDL_FPoint(100, 100), SDL_FPoint(300, 300), SDL_Color(255, 0, 0, 255), 1, 20));
 
 	bool running = true;
 	bool redraw = false;
@@ -366,7 +389,9 @@ int main()
 			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					SDL_Keymod modState = SDL_GetModState();
-					if (drawMode == 1) {
+					if (checkRoundedCollision(mouseX, mouseY, currCanvas.menuTable[0])) {
+						std::cout << "done!";
+					} else if (drawMode == 1) {
 						if (modState & SDL_KMOD_CTRL) {
 							endPoints(mouseX + currCanvas.c.x, mouseY + currCanvas.c.y, currCanvas);
 							redraw = true;
