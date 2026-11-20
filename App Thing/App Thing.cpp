@@ -24,6 +24,8 @@ struct Rect
 	SDL_Color c;
 	float t;
 
+	float round; // value is just a unit length
+
 	SDL_FRect bounds;
 };
 
@@ -43,6 +45,31 @@ struct Canvas
 
 	Camera c;
 };
+
+void renderRoundedRectangle(SDL_Renderer* renderer, Rect rectangle)
+{
+	std::vector<SDL_FPoint> temp;
+
+	float rad = rectangle.round;
+	if (rectangle.round > std::min(rectangle.point1.x / 2, rectangle.point1.y / 2)) {
+		rad = std::min(rectangle.point1.x / 2, rectangle.point1.y / 2);
+	}
+
+	SDL_FPoint corners[4] = {
+		SDL_FPoint(rectangle.point1.x, rectangle.point1.y),
+		SDL_FPoint(rectangle.point2.x, rectangle.point1.y),
+		SDL_FPoint(rectangle.point1.x, rectangle.point2.y),
+		SDL_FPoint(rectangle.point2.x, rectangle.point2.y)
+	};
+
+	for (int c = 0; c < 4; c++) {
+		for (int i = 0; i < 90; i++) {
+			
+		}
+	}
+
+	SDL_RenderGeometry(renderer, NULL, );
+}
 
 void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& viewport)
 {	
@@ -100,7 +127,7 @@ void shapeFirstPoint(float p1, float p2, Canvas& currCanvas)
 	currCanvas.currShape.point1 = SDL_FPoint(p1, p2);
 }
 
-void mainMenu(SDL_Renderer* renderer)
+void menu(SDL_Renderer* renderer)
 {
 	SDL_FRect rect = {0, 0, 200, 200};
 
@@ -121,15 +148,15 @@ void redrawScreen(SDL_Renderer* renderer, Canvas currCanvas, SDL_Window* window)
 
 	SDL_FRect viewport = {currCanvas.c.x, currCanvas.c.y, static_cast<float>(width), static_cast<float>(height)};
 
-	mainMenu(renderer);
-
 	renderLines(renderer, currCanvas, viewport);
 	if (drawMode == 1 || drawMode == 2) {
 		renderCurrLine(renderer, mouseX, mouseY, currCanvas);
 	} else if (drawMode == 3) {
 		renderCurrShape(renderer, mouseX, mouseY, currCanvas);
 	}
-			
+
+	menu(renderer);
+	
 	SDL_RenderPresent(renderer);
 }
 
@@ -214,6 +241,26 @@ void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 
 		if (drawMode != 2) {
 			done = true;
+			endPoints(std::nullopt, std::nullopt, currCanvas);
+		}
+	}
+}
+
+void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas currCanvas)
+{
+
+	if (event.key.key == SDLK_1) {
+		drawMode = 1;
+		changeMode = true;
+	} else if (event.key.key == SDLK_2) {
+		drawMode = 2;
+		changeMode = true;
+	} else if (event.key.key == SDLK_3) {
+		drawMode = 3;
+		changeMode = true;
+	}
+	if (changeMode) {
+		if (!currCanvas.currLine.points.empty()) {
 			endPoints(std::nullopt, std::nullopt, currCanvas);
 		}
 	}
@@ -314,21 +361,7 @@ int main()
 					redraw = true;
 				}
 				bool changeMode = false;
-				if (event.key.key == SDLK_1) {
-					drawMode = 1;
-					changeMode = true;
-				} else if (event.key.key == SDLK_2) {
-					drawMode = 2;
-					changeMode = true;
-				} else if (event.key.key == SDLK_3) {
-					drawMode = 3;
-					changeMode = true;
-				}
-				if (changeMode) {
-					if (!currCanvas.currLine.points.empty()) {
-						endPoints(std::nullopt, std::nullopt, currCanvas);
-					}
-				}
+				changeState(event, drawMode, changeMode, currCanvas);
 			} else {
 				redraw = true;
 			}
