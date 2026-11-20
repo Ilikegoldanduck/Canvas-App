@@ -48,7 +48,7 @@ struct Canvas
 	Camera c;
 };
 
-void createRoundedRectangle(SDL_Renderer* renderer, Rect rectangle)
+void createRoundedRectangle(SDL_Renderer* renderer, Rect& rectangle)
 {
 	std::vector<SDL_FPoint> temp;
 
@@ -59,7 +59,7 @@ void createRoundedRectangle(SDL_Renderer* renderer, Rect rectangle)
 	if (rectangle.round > std::min(std::abs(p1.x - p2.x) / 2, std::abs(p1.y - p2.y) / 2)) {
 		rad = std::min(std::abs(p1.x - p2.x) / 2, std::abs(p1.y - p2.y) / 2);
 	}
-	//thing thing
+	
 	SDL_FPoint corners[4] = {
 		SDL_FPoint(std::max(p1.x, p2.x) - rad, std::max(p1.y, p2.y) - rad),
 		SDL_FPoint(std::min(p1.x, p2.x) + rad, std::max(p1.y, p2.y) - rad),
@@ -77,6 +77,7 @@ void createRoundedRectangle(SDL_Renderer* renderer, Rect rectangle)
 		}
 	}
 
+	SDL_SetRenderDrawColor(renderer, rectangle.c.r, rectangle.c.g, rectangle.c.b, rectangle.c.a);
 	SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
 }
 
@@ -101,6 +102,7 @@ void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& vi
 				(p.y - currCanvas.c.y)
 			});
 		}
+
 		SDL_RenderLines(renderer, transformed.data(), static_cast<int>(stroke.points.size()));
 	}
 }
@@ -146,10 +148,13 @@ void shapeSecondPoint(float p1, float p2, Canvas& currCanvas)
 
 void menu(SDL_Renderer* renderer)
 {
-	SDL_FRect rect = {0, 0, 200, 200};
+	Rect box;
+	box.point1 = SDL_FPoint(100, 100);
+	box.point2 = SDL_FPoint(300, 300);
+	box.c = SDL_Color(255, 0, 0, 255);
+	box.round = 20;
 
-	SDL_SetRenderDrawColor(renderer, 255, 100, 100, 255);
-	SDL_RenderFillRect(renderer, &rect);
+	createRoundedRectangle(renderer, box);
 }
 
 void redrawScreen(SDL_Renderer* renderer, Canvas currCanvas, SDL_Window* window)
