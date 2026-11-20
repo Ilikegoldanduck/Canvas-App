@@ -52,26 +52,27 @@ void createRoundedRectangle(SDL_Renderer* renderer, Rect rectangle)
 {
 	std::vector<SDL_FPoint> temp;
 
-	float rad = rectangle.round;
-	if (rectangle.round > std::min(rectangle.point1.x / 2, rectangle.point1.y / 2)) {
-		rad = std::min(rectangle.point1.x / 2, rectangle.point1.y / 2);
-	}
-
 	SDL_FPoint p1 = rectangle.point1;
 	SDL_FPoint p2 = rectangle.point2;
 
+	float rad = rectangle.round;
+	if (rectangle.round > std::min(std::abs(p1.x - p2.x) / 2, std::abs(p1.y - p2.y) / 2)) {
+		rad = std::min(std::abs(p1.x - p2.x) / 2, std::abs(p1.y - p2.y) / 2);
+	}
+
 	SDL_FPoint corners[4] = {
-		SDL_FPoint(std::max(p1.x, p2.x) - rad, std::min(p1.y, p2.y) + rad),
-		SDL_FPoint(std::min(p1.x, p2.x) + rad, std::min(p1.y, p2.y) + rad),
+		SDL_FPoint(std::max(p1.x, p2.x) - rad, std::max(p1.y, p2.y) - rad),
 		SDL_FPoint(std::min(p1.x, p2.x) + rad, std::max(p1.y, p2.y) - rad),
-		SDL_FPoint(std::max(p1.x, p2.x) - rad, std::max(p1.y, p2.y) - rad)
+		SDL_FPoint(std::min(p1.x, p2.x) + rad, std::min(p1.y, p2.y) + rad),
+		SDL_FPoint(std::max(p1.x, p2.x) - rad, std::min(p1.y, p2.y) + rad)
 	};
 
 	//so theorhetically you'd have to find if p1 is bigger than p2 or not and that's not something i would like to do so! i'll be lazy and do smth..
 
 	for (int c = 0; c < 4; c++) {
 		for (int i = 0; i < 90; i++) {
-			SDL_FPoint pt = SDL_FPoint(corners[c].x + (rad * std::sin((90 * c + i) * std::numbers::pi / 180)));
+			int theta = (90 * c + i) * std::numbers::pi / 180;
+			SDL_FPoint pt = SDL_FPoint(corners[c].x + (rad * std::sin(theta)), corners[c].y + (rad * std::cos(theta)));
 			temp.push_back({pt});
 		}
 	}
