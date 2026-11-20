@@ -1,0 +1,23 @@
+#pragma once
+
+#include "App Thing.h"
+
+void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Canvas currCanvas);
+void renderCurrShape(SDL_Renderer* renderer, float p1, float p2, Canvas currCanvas);
+void shapeFirstPoint(float p1, float p2, Canvas& currCanvas);
+void shapeSecondPoint(float p1, float p2, Canvas& currCanvas);
+void menu(SDL_Renderer* renderer, std::vector<menuRect> menuBox, SDL_Window* window);
+void redrawScreen(SDL_Renderer* renderer, Canvas currCanvas, SDL_Window* window);
+void addPoints(float p1, float p2, Canvas& currCanvas);
+void endPoints(std::optional<float> p1, std::optional<float> p2, Canvas& currCanvas);
+void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window);
+void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window);
+void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas currCanvas);
+void createRoundedRectangle(Rect& rectangle);
+Rect createRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r);
+menuRect createMenuRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r, float offsetX, float offsetY);
+bool checkRoundedCollision(float p1, float p2, Rect rectangle);
+bool checkRoundedMenuCollision(float p1, float p2, menuRect rect, SDL_Window* window);
+void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& viewport);
+void renderSpecificMenuShape(SDL_Renderer* renderer, menuRect rect, SDL_Window* window);
+void createMenu(Canvas& currCanvas);
