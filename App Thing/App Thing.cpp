@@ -58,13 +58,15 @@ void renderRoundedRectangle(SDL_Renderer* renderer, Rect rectangle)
 	SDL_FPoint corners[4] = {
 		SDL_FPoint(rectangle.point1.x, rectangle.point1.y),
 		SDL_FPoint(rectangle.point2.x, rectangle.point1.y),
-		SDL_FPoint(rectangle.point1.x, rectangle.point2.y),
-		SDL_FPoint(rectangle.point2.x, rectangle.point2.y)
+		SDL_FPoint(rectangle.point2.x, rectangle.point2.y),
+		SDL_FPoint(rectangle.point1.x, rectangle.point2.y)
 	};
+
+	//so theorhetically you'd have to find if p1 is bigger than p2 or not and that's not something i would like to do so! i'll be lazy and do smth..
 
 	for (int c = 0; c < 4; c++) {
 		for (int i = 0; i < 90; i++) {
-			
+			//
 		}
 	}
 
@@ -125,6 +127,12 @@ void renderCurrShape(SDL_Renderer* renderer, float p1, float p2, Canvas currCanv
 void shapeFirstPoint(float p1, float p2, Canvas& currCanvas)
 {
 	currCanvas.currShape.point1 = SDL_FPoint(p1, p2);
+}
+
+void shapeSecondPoint(float p1, float p2, Canvas& currCanvas)
+{
+	currCanvas.currShape.point1 = SDL_FPoint(p1, p2);
+					currCanvas.shapes.push_back(std::move(currCanvas.currShape));
 }
 
 void menu(SDL_Renderer* renderer)
@@ -201,8 +209,7 @@ void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 		{
 			if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
-					currCanvas.currShape.point2 = SDL_FPoint(event.button.x + currCanvas.c.x, event.button.y + currCanvas.c.y);
-					currCanvas.shapes.push_back(std::move(currCanvas.currShape));
+					shapeSecondPoint(mouseX, mouseY, currCanvas);
 					done = true;
 					redrawScreen(renderer, currCanvas, window);
 				}
