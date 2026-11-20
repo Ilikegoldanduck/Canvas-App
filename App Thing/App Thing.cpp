@@ -27,6 +27,8 @@ struct Rect
 	float round; // value is just a unit length
 
 	SDL_FRect bounds;
+
+	std::vector<SDL_FPoint> completedShape;
 };
 
 struct Camera
@@ -46,7 +48,7 @@ struct Canvas
 	Camera c;
 };
 
-void renderRoundedRectangle(SDL_Renderer* renderer, Rect rectangle)
+void createRoundedRectangle(SDL_Renderer* renderer, Rect rectangle)
 {
 	std::vector<SDL_FPoint> temp;
 
@@ -55,22 +57,26 @@ void renderRoundedRectangle(SDL_Renderer* renderer, Rect rectangle)
 		rad = std::min(rectangle.point1.x / 2, rectangle.point1.y / 2);
 	}
 
+	SDL_FPoint p1 = rectangle.point1;
+	SDL_FPoint p2 = rectangle.point2;
+
 	SDL_FPoint corners[4] = {
-		SDL_FPoint(rectangle.point1.x, rectangle.point1.y),
-		SDL_FPoint(rectangle.point2.x, rectangle.point1.y),
-		SDL_FPoint(rectangle.point2.x, rectangle.point2.y),
-		SDL_FPoint(rectangle.point1.x, rectangle.point2.y)
+		SDL_FPoint(std::max(p1.x, p2.x) - rad, std::min(p1.y, p2.y) + rad),
+		SDL_FPoint(std::min(p1.x, p2.x) + rad, std::min(p1.y, p2.y) + rad),
+		SDL_FPoint(std::min(p1.x, p2.x) + rad, std::max(p1.y, p2.y) - rad),
+		SDL_FPoint(std::max(p1.x, p2.x) - rad, std::max(p1.y, p2.y) - rad)
 	};
 
 	//so theorhetically you'd have to find if p1 is bigger than p2 or not and that's not something i would like to do so! i'll be lazy and do smth..
 
 	for (int c = 0; c < 4; c++) {
 		for (int i = 0; i < 90; i++) {
-			//
+			SDL_FPoint pt = SDL_FPoint(corners[c].x + (rad * std::sin((90 * c + i) * std::numbers::pi / 180)));
+			temp.push_back({pt});
 		}
 	}
 
-	SDL_RenderGeometry(renderer, NULL, );
+	SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
 }
 
 void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& viewport)
@@ -126,13 +132,15 @@ void renderCurrShape(SDL_Renderer* renderer, float p1, float p2, Canvas currCanv
 
 void shapeFirstPoint(float p1, float p2, Canvas& currCanvas)
 {
-	currCanvas.currShape.point1 = SDL_FPoint(p1, p2);
+	currCanvas.currShape.point1 = SDL_FPoint(p1 + currCanvas.c.x, p2 + currCanvas.c.y);
 }
 
 void shapeSecondPoint(float p1, float p2, Canvas& currCanvas)
 {
-	currCanvas.currShape.point1 = SDL_FPoint(p1, p2);
-					currCanvas.shapes.push_back(std::move(currCanvas.currShape));
+	SDL_FPoint temp = currCanvas.currShape.point1;
+	currCanvas.currShape.point1 = SDL_FPoint(std::min(temp.x, p1 + currCanvas.c.x), std::min(temp.y, p2 + currCanvas.c.y));
+	currCanvas.currShape.point2 = SDL_FPoint(std::max(temp.x, p1 + currCanvas.c.x), std::max(temp.y, p2 + currCanvas.c.y));
+	currCanvas.shapes.push_back(std::move(currCanvas.currShape));
 }
 
 void menu(SDL_Renderer* renderer)
@@ -209,7 +217,7 @@ void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 		{
 			if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
-					shapeSecondPoint(mouseX, mouseY, currCanvas);
+					shapeSecondPoint(event.button.x, event.button.y, currCanvas);
 					done = true;
 					redrawScreen(renderer, currCanvas, window);
 				}
