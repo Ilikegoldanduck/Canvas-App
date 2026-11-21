@@ -29,6 +29,32 @@ void renderCurrShape(SDL_Renderer* renderer, float p1, float p2, Canvas currCanv
 	}
 }
 
+void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& viewport)
+{	
+	std::vector<SDL_FPoint> transformed;
+	for (const Stroke& stroke : currCanvas.lines)
+	{
+		if (!SDL_HasRectIntersectionFloat(&stroke.bounds, &viewport))
+		{
+			continue;
+		}
+		SDL_SetRenderDrawColor(renderer, stroke.c.r, stroke.c.g, stroke.c.b, stroke.c.a);
+
+		transformed.clear();
+		transformed.reserve(stroke.points.size());
+
+		for (const SDL_FPoint& p : stroke.points)
+		{
+			transformed.push_back({
+				(p.x - currCanvas.c.x),
+				(p.y - currCanvas.c.y)
+			});
+		}
+
+		SDL_RenderLines(renderer, transformed.data(), static_cast<int>(stroke.points.size()));
+	}
+}
+
 void shapeFirstPoint(float p1, float p2, Canvas& currCanvas)
 {
 	currCanvas.currShape.point1 = SDL_FPoint(p1 + currCanvas.c.x, p2 + currCanvas.c.y);
@@ -103,6 +129,25 @@ void endPoints(std::optional<float> p1, std::optional<float> p2, Canvas& currCan
 	currCanvas.currLine.c = SDL_Color(0, 255, 0, 255);
 }
 
+void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas currCanvas)
+{
+	if (event.key.key == SDLK_1) {
+		drawMode = 1;
+		changeMode = true;
+	} else if (event.key.key == SDLK_2) {
+		drawMode = 2;
+		changeMode = true;
+	} else if (event.key.key == SDLK_3) {
+		drawMode = 3;
+		changeMode = true;
+	}
+	if (changeMode) {
+		if (!currCanvas.currLine.points.empty()) {
+			endPoints(std::nullopt, std::nullopt, currCanvas);
+		}
+	}
+}
+
 void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 {
 	bool done = false;
@@ -113,7 +158,9 @@ void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 
 		if (SDL_WaitEvent(&event))
 		{
-			if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+			if (event.type == SDL_EVENT_QUIT) {
+				done = true;
+			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					shapeSecondPoint(event.button.x, event.button.y, currCanvas);
 					done = true;
@@ -138,7 +185,10 @@ void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 
 		if (SDL_WaitEvent(&event))
 		{
-			if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+			
+			if (event.type == SDL_EVENT_QUIT) {
+				done = true;
+			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					endPoints(event.button.x + currCanvas.c.x, event.button.y + currCanvas.c.y, currCanvas);
 					done = true;	
@@ -159,25 +209,6 @@ void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 	}
 }
 
-void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas currCanvas)
-{
-	if (event.key.key == SDLK_1) {
-		drawMode = 1;
-		changeMode = true;
-	} else if (event.key.key == SDLK_2) {
-		drawMode = 2;
-		changeMode = true;
-	} else if (event.key.key == SDLK_3) {
-		drawMode = 3;
-		changeMode = true;
-	}
-	if (changeMode) {
-		if (!currCanvas.currLine.points.empty()) {
-			endPoints(std::nullopt, std::nullopt, currCanvas);
-		}
-	}
-}
-
 void lineDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 {
     bool done = false;
@@ -189,7 +220,10 @@ void lineDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
         SDL_Event event;
 
 		if (SDL_WaitEvent(&event)) {
-            if (event.type == SDL_EVENT_MOUSE_MOTION) {
+            
+			if (event.type == SDL_EVENT_QUIT) {
+				done = true;
+			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
 				mouseX = event.motion.x;
 				mouseY = event.motion.y;
 				redrawScreen(renderer, currCanvas, window);

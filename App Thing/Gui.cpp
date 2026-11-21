@@ -3,7 +3,6 @@
 #include "App Thing.h"
 #include "functions.h"
 
-
 void createRoundedRectangle(Rect& rectangle)
 {
 	std::vector<SDL_FPoint> temp;
@@ -99,32 +98,6 @@ bool checkRoundedMenuCollision(float p1, float p2, menuRect rect, SDL_Window* wi
 	std::cout << std::to_string(cx) + "\n";
 	std::cout << std::to_string(cy) + "\n";
 	return std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round;
-}
-
-void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& viewport)
-{	
-	std::vector<SDL_FPoint> transformed;
-	for (const Stroke& stroke : currCanvas.lines)
-	{
-		if (!SDL_HasRectIntersectionFloat(&stroke.bounds, &viewport))
-		{
-			continue;
-		}
-		SDL_SetRenderDrawColor(renderer, stroke.c.r, stroke.c.g, stroke.c.b, stroke.c.a);
-
-		transformed.clear();
-		transformed.reserve(stroke.points.size());
-
-		for (const SDL_FPoint& p : stroke.points)
-		{
-			transformed.push_back({
-				(p.x - currCanvas.c.x),
-				(p.y - currCanvas.c.y)
-			});
-		}
-
-		SDL_RenderLines(renderer, transformed.data(), static_cast<int>(stroke.points.size()));
-	}
 }
 
 void renderSpecificMenuShape(SDL_Renderer* renderer, menuRect rect, SDL_Window* window)

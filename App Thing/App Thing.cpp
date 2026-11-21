@@ -60,14 +60,14 @@ int main()
 	float mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
 
+	redrawScreen(renderer, currCanvas, window);
+	
 	while (running)
 	{
 		SDL_Event event;
 
 		if (SDL_WaitEvent(&event)) {
-			if (event.type == SDL_EVENT_QUIT) {
-				running = false;
-			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+			if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					SDL_Keymod modState = SDL_GetModState();
 					if (checkRoundedMenuCollision(mouseX, mouseY, currCanvas.menuTable[0], window)) {
@@ -85,6 +85,10 @@ int main()
 				cameraChange(currCanvas, event, renderer, window);
 				bool changeMode = false;
 				changeState(event, currCanvas.drawMode, changeMode, currCanvas);
+			}
+
+			if (event.type == SDL_EVENT_QUIT) {
+				running = false;
 			}
 		}
 	}
