@@ -45,6 +45,9 @@ int main()
 
 	Canvas currCanvas;
 
+	totalWindow renderWindow;
+	renderWindow.currCanvas = currCanvas;
+
 	currCanvas.drawMode = 1;
 
 	currCanvas.c.x = 0;
@@ -58,12 +61,15 @@ int main()
 	float mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
 
-	redrawScreen(renderer, currCanvas, window);
 	
 	guiWindow drawTab;
 
+	createDrawWindow(drawTab);
 
+	renderWindow.windows.push_back(drawTab);
 
+	redrawScreen(renderer, renderWindow, window);
+	
 	while (running)
 	{
 		SDL_Event event;
@@ -71,7 +77,7 @@ int main()
 		if (SDL_WaitEvent(&event)) {
 			if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
-					if (checkRoundedMenuCollision(mouseX, mouseY, currCanvas.menuTable[0], window)) {
+					if (checkRoundedMenuCollision(mouseX, mouseY, drawTab, window)) {
 						std::cout << "done!";
 					} else if (currCanvas.drawMode == 1) {
 						lineDraw(currCanvas, renderer, window, running);

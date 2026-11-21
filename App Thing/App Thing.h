@@ -53,8 +53,10 @@ struct Button
 
 struct guiWindow
 {
-	float x, y;
+	std::string name;
+	float x, y; //position based on the screen (ignores camera movement)
 
+	Rect body; //main body (if clicked and held, it follows the movement.)
 	std::vector<Rect> shapes;
 	std::vector<Button> buttons;
 };
@@ -77,6 +79,12 @@ struct Canvas
     int drawMode;
 
 	//Temp stuff
-	std::vector<guiWindow> windows;
 	std::vector<menuRect> menuTable;
+};
+
+struct totalWindow
+{
+	Canvas currCanvas;
+
+	std::vector<guiWindow> windows;
 };

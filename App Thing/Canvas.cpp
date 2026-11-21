@@ -107,8 +107,15 @@ void menu(SDL_Renderer* renderer, std::vector<menuRect> menuBox, SDL_Window* win
 	}
 }
 
-void redrawScreen(SDL_Renderer* renderer, Canvas currCanvas, SDL_Window* window)
+void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window)
 {
+	
+}
+
+void redrawScreen(SDL_Renderer* renderer, totalWindow renderWindow, SDL_Window* window)
+{
+	Canvas& currCanvas = renderWindow.currCanvas;
+
 	SDL_SetRenderDrawColor(renderer, 40, 45, 60, 255);
 	SDL_RenderClear(renderer);
 
@@ -125,6 +132,10 @@ void redrawScreen(SDL_Renderer* renderer, Canvas currCanvas, SDL_Window* window)
 		renderCurrLine(renderer, mouseX, mouseY, currCanvas);
 	} else if (currCanvas.drawMode == 3) {
 		renderCurrShape(renderer, mouseX, mouseY, currCanvas);
+	}
+
+	for (const guiWindow menu : renderWindow.windows) {
+		renderMenu(menu, renderer, window);
 	}
 
 	menu(renderer, currCanvas.menuTable, window);
@@ -180,7 +191,7 @@ void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas currCa
 	}
 }
 
-void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window, bool& running)
+void shapeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window, bool& running)
 {
 	bool done = false;
 
@@ -195,22 +206,24 @@ void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window, b
                 running = false;
 			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
-					shapeSecondPoint(event.button.x, event.button.y, currCanvas);
+					shapeSecondPoint(event.button.x, event.button.y, renderWindow.currCanvas);
 					done = true;
-					redrawScreen(renderer, currCanvas, window);
+					redrawScreen(renderer, renderWindow, window);
 				}
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
-				redrawScreen(renderer, currCanvas, window);
+				redrawScreen(renderer, renderWindow, window);
 			}
 		}
 	}
 }
 
-void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window, bool& running)
+void freeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window, bool& running)
 {
 	bool done = false;
 
 	float mouseX, mouseY;
+
+	Canvas& currCanvas = renderWindow.currCanvas;
 
 	while (! done)
 	{
@@ -226,28 +239,29 @@ void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window, bo
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					endPoints(event.button.x + currCanvas.c.x, event.button.y + currCanvas.c.y, currCanvas);
 					done = true;	
-					redrawScreen(renderer, currCanvas, window);
+					redrawScreen(renderer, renderWindow, window);
 				}
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
 				mouseX = event.motion.x;
 				mouseY = event.motion.y;
-				addPoints(mouseX, mouseY, currCanvas);
-				redrawScreen(renderer, currCanvas, window);
+				redrawScreen(renderer, renderWindow, window);
 			}
 		}
 
-		if (currCanvas.drawMode != 2) {
+		if (renderWindow.currCanvas.drawMode != 2) {
 			done = true;
 			endPoints(std::nullopt, std::nullopt, currCanvas);
 		}
 	}
 }
 
-void lineDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window, bool& running)
+void lineDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window, bool& running)
 {
     bool done = false;
 
     float mouseX, mouseY;
+
+	Canvas& currCanvas = renderWindow.currCanvas;
 
     while (! done) {
 
@@ -261,18 +275,18 @@ void lineDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window, bo
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
 				mouseX = event.motion.x;
 				mouseY = event.motion.y;
-				redrawScreen(renderer, currCanvas, window);
+				redrawScreen(renderer, renderWindow, window);
 			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
                 SDL_Keymod modState = SDL_GetModState();
 
                 if (modState & SDL_KMOD_CTRL) {
                     endPoints(mouseX + currCanvas.c.x, mouseY + currCanvas.c.y, currCanvas);
-                    redrawScreen(renderer, currCanvas, window);
+					redrawScreen(renderer, renderWindow, window);
                     done = true;
                 } else {
                     std::cout << std::to_string(mouseX) + "|" + std::to_string(mouseY) + "\n";
                     addPoints(mouseX, mouseY, currCanvas);
-                    redrawScreen(renderer, currCanvas, window);
+					redrawScreen(renderer, renderWindow, window);
                 }
             } else if (event.type == SDL_EVENT_KEY_DOWN) {
 				cameraChange(currCanvas, event, renderer, window);
@@ -283,19 +297,20 @@ void lineDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window, bo
     }
 }
 
-void cameraChange(Canvas& currCanvas, SDL_Event event, SDL_Renderer* renderer, SDL_Window* window)
+void cameraChange(totalWindow& renderWindow, SDL_Event event, SDL_Renderer* renderer, SDL_Window* window)
 {
+	Canvas& currCanvas = renderWindow.currCanvas;
     if (event.key.key == SDLK_UP) {
         currCanvas.c.y = currCanvas.c.y - 10;
-        redrawScreen(renderer, currCanvas, window);
+		redrawScreen(renderer, renderWindow, window);
     } else if (event.key.key == SDLK_DOWN) {
         currCanvas.c.y = currCanvas.c.y + 10;
-        redrawScreen(renderer, currCanvas, window);
+		redrawScreen(renderer, renderWindow, window);
     } else if (event.key.key == SDLK_LEFT) {
         currCanvas.c.x = currCanvas.c.x - 10;
-        redrawScreen(renderer, currCanvas, window);
+		redrawScreen(renderer, renderWindow, window);
     } else if (event.key.key == SDLK_RIGHT) {
         currCanvas.c.x = currCanvas.c.x + 10;
-        redrawScreen(renderer, currCanvas, window);
+		redrawScreen(renderer, renderWindow, window);
     }
 }
