@@ -87,6 +87,32 @@ void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& vi
 	}
 }
 
+void renderShapes(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& viewport)
+{
+	std::vector<SDL_FPoint> transformed;
+	for (const Rect rectangle : currCanvas.shapes)
+	{
+		if (!SDL_HasRectIntersectionFloat(&rectangle.bounds, &viewport))
+		{
+			continue;
+		}
+		SDL_SetRenderDrawColor(renderer, rectangle.c.r, rectangle.c.g, rectangle.c.b, rectangle.c.a);
+
+		transformed.clear();
+		transformed.reserve(rectangle.completedShape.size());
+
+		for (const SDL_FPoint& p : rectangle.completedShape)
+		{
+			transformed.push_back({
+				(p.x - currCanvas.c.x),
+				(p.y - currCanvas.c.y)
+			});
+		}
+
+		SDL_RenderLines(renderer, transformed.data(), static_cast<int>(rectangle.completedShape.size()));
+	}
+}
+
 void shapeFirstPoint(float p1, float p2, Canvas& currCanvas)
 {
 	currCanvas.currShape.point1 = SDL_FPoint(p1 + currCanvas.c.x, p2 + currCanvas.c.y);
@@ -263,6 +289,8 @@ void lineDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 	SDL_GetMouseState(&mouseX, &mouseY);
 
 	Canvas& currCanvas = renderWindow.currCanvas;
+	
+	addPoints(mouseX, mouseY, currCanvas);
 
     while (! done) {
 

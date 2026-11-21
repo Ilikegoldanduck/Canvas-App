@@ -11,6 +11,7 @@ Rect createRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r)
 	temp.c = c;
 	temp.t = t;
 	temp.round = r;
+	temp.bounds = SDL_FRect(std::min(p1.x, p2.x), std::min(p1.y, p2.y), std::abs(p1.x - p2.x), std::abs(p1.y - p2.y));
 
 	createRoundedRectangle(temp);
 
@@ -65,8 +66,6 @@ bool checkRoundedCollision(float p1, float p2, Rect rectangle)
 	float cx = std::max(std::min(pt1.x, pt2.x) + rad, std::min(p1, std::max(pt1.x, pt2.x) - rad));
 	float cy = std::max(std::min(pt1.y, pt2.y) + rad, std::min(p2, std::max(pt1.y, pt2.y) - rad));
 
-	std::cout << std::to_string(cx) + "\n";
-	std::cout << std::to_string(cy) + "\n";
 	return std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round;
 }
 
@@ -77,9 +76,6 @@ bool checkMenuCollision(float p1, float p2, totalWindow& renderWindow, SDL_Windo
 
 		SDL_FPoint pt1 = rectangle.point1;
 		SDL_FPoint pt2 = rectangle.point2;
-		
-		std::cout << std::to_string(p1) + "\n";
-		std::cout << std::to_string(p2) + "\n";
 
 		float rad = rectangle.round;
 		if (rectangle.round > std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2)) {
@@ -88,11 +84,6 @@ bool checkMenuCollision(float p1, float p2, totalWindow& renderWindow, SDL_Windo
 
 		float cx = std::max(std::min(pt1.x, pt2.x) + rad + drawWindow.x, std::min(p1, std::max(pt1.x, pt2.x) - rad + drawWindow.x));
 		float cy = std::max(std::min(pt1.y, pt2.y) + rad + drawWindow.y, std::min(p2, std::max(pt1.y, pt2.y) - rad + drawWindow.y));
-
-		std::cout << std::to_string(cx) + "\n";
-		std::cout << std::to_string(cy) + "\n";
-
-		std::cout << std::to_string(std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2))) + "|" + std::to_string(rectangle.round) + "\n";
 
 		if (std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round) {
 			moveDrawTabGuiWindow(renderer, renderWindow, drawWindow, window, p1, p2);
@@ -134,7 +125,6 @@ void moveDrawTabGuiWindow(SDL_Renderer* renderer, totalWindow& renderWindow, gui
             } else if (event.type == SDL_EVENT_MOUSE_MOTION) {
 				drawTab.x = windowX + (event.motion.x - x);
 				drawTab.y = windowY + (event.motion.y - y);
-				std::cout << std::to_string(drawTab.x) + "|" + std::to_string(drawTab.y) + "\n";
 				redrawScreen(renderer, renderWindow, window);
 			}
         }
