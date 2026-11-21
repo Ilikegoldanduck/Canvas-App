@@ -177,3 +177,56 @@ void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas currCa
 		}
 	}
 }
+
+void lineDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
+{
+    bool done = false;
+
+    float mouseX, mouseY;
+
+    while (! done) {
+
+        SDL_Event event;
+
+		if (SDL_WaitEvent(&event)) {
+            if (event.type == SDL_EVENT_MOUSE_MOTION) {
+				mouseX = event.motion.x;
+				mouseY = event.motion.y;
+				redrawScreen(renderer, currCanvas, window);
+			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+                SDL_Keymod modState = SDL_GetModState();
+
+                if (modState & SDL_KMOD_CTRL) {
+                    endPoints(mouseX + currCanvas.c.x, mouseY + currCanvas.c.y, currCanvas);
+                    redrawScreen(renderer, currCanvas, window);
+                    done = true;
+                } else {
+                    std::cout << std::to_string(mouseX) + "|" + std::to_string(mouseY) + "\n";
+                    addPoints(mouseX, mouseY, currCanvas);
+                    redrawScreen(renderer, currCanvas, window);
+                }
+            } else if (event.type == SDL_EVENT_KEY_DOWN) {
+				cameraChange(currCanvas, event, renderer, window);
+				bool changeMode = false;
+				changeState(event, currCanvas.drawMode, changeMode, currCanvas);
+			}
+        }
+    }
+}
+
+void cameraChange(Canvas& currCanvas, SDL_Event event, SDL_Renderer* renderer, SDL_Window* window)
+{
+    if (event.key.key == SDLK_UP) {
+        currCanvas.c.y = currCanvas.c.y - 10;
+        redrawScreen(renderer, currCanvas, window);
+    } else if (event.key.key == SDLK_DOWN) {
+        currCanvas.c.y = currCanvas.c.y + 10;
+        redrawScreen(renderer, currCanvas, window);
+    } else if (event.key.key == SDLK_LEFT) {
+        currCanvas.c.x = currCanvas.c.x - 10;
+        redrawScreen(renderer, currCanvas, window);
+    } else if (event.key.key == SDLK_RIGHT) {
+        currCanvas.c.x = currCanvas.c.x + 10;
+        redrawScreen(renderer, currCanvas, window);
+    }
+}

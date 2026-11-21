@@ -21,3 +21,6 @@ bool checkRoundedMenuCollision(float p1, float p2, menuRect rect, SDL_Window* wi
 void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& viewport);
 void renderSpecificMenuShape(SDL_Renderer* renderer, menuRect rect, SDL_Window* window);
 void createMenu(Canvas& currCanvas);
+void cameraChange(Canvas& currCanvas, SDL_Event event, bool& redraw);
+void lineDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window);
+void cameraChange(Canvas& currCanvas, SDL_Event event, SDL_Renderer* renderer, SDL_Window* window);
