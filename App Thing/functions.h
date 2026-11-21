@@ -24,5 +24,5 @@ void createMenu(Canvas& currCanvas);
 void lineDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window, bool& running);
 void cameraChange(totalWindow& renderWindow, SDL_Event event, SDL_Renderer* renderer, SDL_Window* window);
 void createDrawWindow(guiWindow& drawWindow);
-void moveGuiWindow(SDL_Renderer* renderer, guiWindow& guiWindow, totalWindow& renderWindow, SDL_Window* window, float x, float y);
+void moveDrawTabGuiWindow(SDL_Renderer* renderer, totalWindow& renderWindow, SDL_Window* window, float x, float y);
 void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window);

@@ -66,7 +66,7 @@ int main()
 
 	createDrawWindow(drawTab);
 
-	renderWindow.windows.push_back(drawTab);
+	renderWindow.drawTab = drawTab;
 
 	redrawScreen(renderer, renderWindow, window);
 
@@ -79,7 +79,7 @@ int main()
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					SDL_GetMouseState(&mouseX, &mouseY);
 					if (checkRoundedMenuCollision(mouseX, mouseY, drawTab, window)) {
-						moveGuiWindow(renderer, drawTab, renderWindow, window, mouseX, mouseY);
+						moveDrawTabGuiWindow(renderer, renderWindow, window, mouseX, mouseY);
 						std::cout << "done!";
 					} else if (currCanvas.drawMode == 1) {
 						lineDraw(renderWindow, renderer, window, running);

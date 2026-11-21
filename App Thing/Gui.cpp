@@ -109,12 +109,12 @@ void renderSpecificMenuShape(SDL_Renderer* renderer, menuRect rect, SDL_Window* 
 	SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
 }
 
-void moveGuiWindow(SDL_Renderer* renderer, guiWindow& guiWindow, totalWindow& renderWindow, SDL_Window* window, float x, float y)
+void moveDrawTabGuiWindow(SDL_Renderer* renderer, totalWindow& renderWindow, SDL_Window* window, float x, float y)
 {
     bool done = false;
 
-	float windowX = guiWindow.x;
-	float windowY = guiWindow.y;
+	float windowX = renderWindow.drawTab.x;
+	float windowY = renderWindow.drawTab.y;
 
     while (! done) {
         SDL_Event event;
@@ -123,9 +123,9 @@ void moveGuiWindow(SDL_Renderer* renderer, guiWindow& guiWindow, totalWindow& re
             if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == SDL_BUTTON_LEFT) {
                 done = true;
             } else if (event.type == SDL_EVENT_MOUSE_MOTION) {
-				guiWindow.x = windowX + (event.motion.x - x);
-				guiWindow.y = windowY + (event.motion.y - y);
-				std::cout << std::to_string(guiWindow.x) + "|" + std::to_string(guiWindow.y) + "\n";
+				renderWindow.drawTab.x = windowX + (event.motion.x - x);
+				renderWindow.drawTab.y = windowY + (event.motion.y - y);
+				std::cout << std::to_string(renderWindow.drawTab.x) + "|" + std::to_string(renderWindow.drawTab.y) + "\n";
 				redrawScreen(renderer, renderWindow, window);
 			}
         }
