@@ -70,30 +70,36 @@ bool checkRoundedCollision(float p1, float p2, Rect rectangle)
 	return std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round;
 }
 
-bool checkRoundedMenuCollision(float p1, float p2, guiWindow drawWindow, SDL_Window* window)
+bool checkMenuCollision(float p1, float p2, totalWindow& renderWindow, SDL_Window* window, SDL_Renderer* renderer)
 {
-	Rect rectangle = drawWindow.body;
+	for (guiWindow& drawWindow : renderWindow.windows) {
+		Rect rectangle = drawWindow.body;
 
-	SDL_FPoint pt1 = rectangle.point1;
-	SDL_FPoint pt2 = rectangle.point2;
-	
-	std::cout << std::to_string(p1) + "\n";
-	std::cout << std::to_string(p2) + "\n";
+		SDL_FPoint pt1 = rectangle.point1;
+		SDL_FPoint pt2 = rectangle.point2;
+		
+		std::cout << std::to_string(p1) + "\n";
+		std::cout << std::to_string(p2) + "\n";
 
-	float rad = rectangle.round;
-	if (rectangle.round > std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2)) {
-		rad = std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2);
+		float rad = rectangle.round;
+		if (rectangle.round > std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2)) {
+			rad = std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2);
+		}
+
+		float cx = std::max(std::min(pt1.x, pt2.x) + rad + drawWindow.x, std::min(p1, std::max(pt1.x, pt2.x) - rad + drawWindow.x));
+		float cy = std::max(std::min(pt1.y, pt2.y) + rad + drawWindow.y, std::min(p2, std::max(pt1.y, pt2.y) - rad + drawWindow.y));
+
+		std::cout << std::to_string(cx) + "\n";
+		std::cout << std::to_string(cy) + "\n";
+
+		std::cout << std::to_string(std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2))) + "|" + std::to_string(rectangle.round) + "\n";
+
+		if (std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round) {
+			moveDrawTabGuiWindow(renderer, renderWindow, drawWindow, window, p1, p2);
+			return true;
+		}
 	}
-
-	float cx = std::max(std::min(pt1.x, pt2.x) + rad + drawWindow.x, std::min(p1, std::max(pt1.x, pt2.x) - rad + drawWindow.x));
-	float cy = std::max(std::min(pt1.y, pt2.y) + rad + drawWindow.y, std::min(p2, std::max(pt1.y, pt2.y) - rad + drawWindow.y));
-
-	std::cout << std::to_string(cx) + "\n";
-	std::cout << std::to_string(cy) + "\n";
-
-	std::cout << std::to_string(std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2))) + "|" + std::to_string(rectangle.round) + "\n";
-
-	return std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round;
+	return false;
 }
 
 void renderSpecificMenuShape(SDL_Renderer* renderer, menuRect rect, SDL_Window* window)
@@ -112,12 +118,12 @@ void renderSpecificMenuShape(SDL_Renderer* renderer, menuRect rect, SDL_Window* 
 	SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
 }
 
-void moveDrawTabGuiWindow(SDL_Renderer* renderer, totalWindow& renderWindow, SDL_Window* window, float x, float y)
+void moveDrawTabGuiWindow(SDL_Renderer* renderer, totalWindow& renderWindow, guiWindow& drawTab, SDL_Window* window, float x, float y)
 {
     bool done = false;
 
-	float windowX = renderWindow.drawTab.x;
-	float windowY = renderWindow.drawTab.y;
+	float windowX = drawTab.x;
+	float windowY = drawTab.y;
 
     while (! done) {
         SDL_Event event;
@@ -126,9 +132,9 @@ void moveDrawTabGuiWindow(SDL_Renderer* renderer, totalWindow& renderWindow, SDL
             if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == SDL_BUTTON_LEFT) {
                 done = true;
             } else if (event.type == SDL_EVENT_MOUSE_MOTION) {
-				renderWindow.drawTab.x = windowX + (event.motion.x - x);
-				renderWindow.drawTab.y = windowY + (event.motion.y - y);
-				std::cout << std::to_string(renderWindow.drawTab.x) + "|" + std::to_string(renderWindow.drawTab.y) + "\n";
+				drawTab.x = windowX + (event.motion.x - x);
+				drawTab.y = windowY + (event.motion.y - y);
+				std::cout << std::to_string(drawTab.x) + "|" + std::to_string(drawTab.y) + "\n";
 				redrawScreen(renderer, renderWindow, window);
 			}
         }
@@ -142,11 +148,4 @@ void createDrawWindow(guiWindow& drawWindow)
 
 	drawWindow.x = 0;
 	drawWindow.y = 0;
-}	
-
-void createMenu(Canvas& currCanvas)
-{	//Might change design to be more like a bar that you can just move around idk
-	
-	currCanvas.menuTable.push_back(createMenuRect(SDL_FPoint(0, 10), SDL_FPoint(300, 110), SDL_Color(255, 0, 0, 255), 1, 20, 0, 0));
-	currCanvas.menuTable.push_back(createMenuRect(SDL_FPoint(100, 60), SDL_FPoint(300, 300), SDL_Color(255, 0, 0, 255), 1, 20, 0, 0));
 }

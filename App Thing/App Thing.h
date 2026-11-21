@@ -86,7 +86,5 @@ struct totalWindow
 {
 	Canvas currCanvas;
 
-	guiWindow drawTab;
-
 	std::vector<guiWindow> windows;
 };
