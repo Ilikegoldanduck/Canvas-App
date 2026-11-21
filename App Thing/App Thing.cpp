@@ -52,7 +52,10 @@ int main()
 	currCanvas.c.y = 0;
 
 	currCanvas.currLine.c = SDL_Color(0, 255, 0, 255);
+
+	currCanvas.currShape = Rect();
 	currCanvas.currShape.c = SDL_Color(0, 255, 0, 255);
+	currCanvas.currShape.round = 0;
 
 	bool running = true;
 

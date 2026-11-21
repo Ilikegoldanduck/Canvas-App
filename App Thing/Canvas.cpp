@@ -3,6 +3,8 @@
 #include "App Thing.h"
 #include "functions.h"
 
+bool currRect = false;
+
 void createRoundedRectangle(Rect& rectangle)
 {
 	std::vector<SDL_FPoint> temp;
@@ -53,12 +55,10 @@ void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Canvas currCanva
 
 void renderCurrShape(SDL_Renderer* renderer, float p1, float p2, Canvas currCanvas)
 {
-	if (currCanvas.currShape.point1.x && currCanvas.currShape.point1.y) {
-		SDL_FRect rect = {std::min(currCanvas.currShape.point1.x, p1), std::min(currCanvas.currShape.point1.y, p2), std::abs(currCanvas.currShape.point1.x - p1), std::abs(currCanvas.currShape.point1.y - p2)};
-		
-		SDL_SetRenderDrawColor(renderer, currCanvas.currShape.c.r, currCanvas.currShape.c.g, currCanvas.currShape.c.b, currCanvas.currShape.c.a);
-		SDL_RenderRect(renderer, &rect);
-	}
+	SDL_FRect rect = {std::min(currCanvas.currShape.point1.x, p1), std::min(currCanvas.currShape.point1.y, p2), std::abs(currCanvas.currShape.point1.x - p1), std::abs(currCanvas.currShape.point1.y - p2)};
+	
+	SDL_SetRenderDrawColor(renderer, currCanvas.currShape.c.r, currCanvas.currShape.c.g, currCanvas.currShape.c.b, currCanvas.currShape.c.a);
+	SDL_RenderRect(renderer, &rect);
 }
 
 void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& viewport)
@@ -122,8 +122,17 @@ void shapeSecondPoint(float p1, float p2, Canvas& currCanvas)
 {
 	SDL_FPoint temp = currCanvas.currShape.point1;
 	currCanvas.currShape.point1 = SDL_FPoint(std::min(temp.x, p1 + currCanvas.c.x), std::min(temp.y, p2 + currCanvas.c.y));
+	float x1 = currCanvas.currShape.point1.x;
+	float y1 = currCanvas.currShape.point1.y;
 	currCanvas.currShape.point2 = SDL_FPoint(std::max(temp.x, p1 + currCanvas.c.x), std::max(temp.y, p2 + currCanvas.c.y));
+	float x2 = currCanvas.currShape.point2.x;
+	float y2 = currCanvas.currShape.point2.y;
+	createRoundedRectangle(currCanvas.currShape);
+	currCanvas.currShape.bounds = SDL_FRect(x1, y1, x2 - x1 + 2 * currCanvas.currShape.t, y2 - y1 + 2 * currCanvas.currShape.t);
 	currCanvas.shapes.push_back(std::move(currCanvas.currShape));
+	currCanvas.currShape = Rect();
+	currCanvas.currShape.c = SDL_Color(0, 255, 0, 255);
+	currCanvas.currShape.round = 0;
 }
 
 void menu(SDL_Renderer* renderer, std::vector<menuRect> menuBox, SDL_Window* window)
@@ -151,9 +160,11 @@ void redrawScreen(SDL_Renderer* renderer, totalWindow renderWindow, SDL_Window* 
 	renderLines(renderer, currCanvas, viewport);
 	if (currCanvas.drawMode == 1 || currCanvas.drawMode == 2) {
 		renderCurrLine(renderer, mouseX, mouseY, currCanvas);
-	} else if (currCanvas.drawMode == 3) {
+	} else if (currCanvas.drawMode == 3 && currRect) {
 		renderCurrShape(renderer, mouseX, mouseY, currCanvas);
 	}
+
+	renderShapes(renderer, currCanvas, viewport);
 
 	for (const guiWindow menu : renderWindow.windows) {
 		renderMenu(menu, renderer, window);
@@ -218,6 +229,7 @@ void changeState(SDL_Event event, bool& changeMode, Canvas& currCanvas)
 void shapeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window, bool& running)
 {
 	bool done = false;
+	currRect = true;
 
 	while (! done)
 	{
@@ -228,10 +240,12 @@ void shapeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* wi
 			if (event.type == SDL_EVENT_QUIT) {
 				done = true;
                 running = false;
+				currRect = false;
 			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					shapeSecondPoint(event.button.x, event.button.y, renderWindow.currCanvas);
 					done = true;
+					currRect = false;
 					redrawScreen(renderer, renderWindow, window);
 				}
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
