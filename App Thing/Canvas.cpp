@@ -3,6 +3,38 @@
 #include "App Thing.h"
 #include "functions.h"
 
+void createRoundedRectangle(Rect& rectangle)
+{
+	std::vector<SDL_FPoint> temp;
+
+	SDL_FPoint p1 = rectangle.point1;
+	SDL_FPoint p2 = rectangle.point2;
+
+	float rad = rectangle.round;
+	if (rectangle.round > std::min(std::abs(p1.x - p2.x) / 2, std::abs(p1.y - p2.y) / 2)) {
+		rad = std::min(std::abs(p1.x - p2.x) / 2, std::abs(p1.y - p2.y) / 2);
+	}
+	
+	SDL_FPoint corners[4] = {
+		SDL_FPoint(std::max(p1.x, p2.x) - rad, std::max(p1.y, p2.y) - rad),
+		SDL_FPoint(std::min(p1.x, p2.x) + rad, std::max(p1.y, p2.y) - rad),
+		SDL_FPoint(std::min(p1.x, p2.x) + rad, std::min(p1.y, p2.y) + rad),
+		SDL_FPoint(std::max(p1.x, p2.x) - rad, std::min(p1.y, p2.y) + rad)
+	};
+
+	for (int c = 0; c < 4; c++) {
+		for (int i = 0; i < 90; i++) {
+			float theta = (90 * c + i) * std::numbers::pi_v<float> / 180.0f;
+			SDL_FPoint pt = SDL_FPoint(corners[c].x + (rad * std::cos(theta)), corners[c].y + (rad * std::sin(theta)));
+			temp.push_back({pt});
+		}
+	}
+
+	temp.push_back(SDL_FPoint(std::max(p1.x, p2.x), std::max(p1.y, p2.y) - rad));
+
+	rectangle.completedShape = temp;
+}
+
 void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Canvas currCanvas)
 {
 	currCanvas.currLine.points.push_back(SDL_FPoint(p1 + currCanvas.c.x, p2 + currCanvas.c.y));
@@ -148,7 +180,7 @@ void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas currCa
 	}
 }
 
-void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
+void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window, bool& running)
 {
 	bool done = false;
 
@@ -160,6 +192,7 @@ void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 		{
 			if (event.type == SDL_EVENT_QUIT) {
 				done = true;
+                running = false;
 			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					shapeSecondPoint(event.button.x, event.button.y, currCanvas);
@@ -173,7 +206,7 @@ void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 	}
 }
 
-void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
+void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window, bool& running)
 {
 	bool done = false;
 
@@ -188,6 +221,7 @@ void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 			
 			if (event.type == SDL_EVENT_QUIT) {
 				done = true;
+                running = false;
 			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					endPoints(event.button.x + currCanvas.c.x, event.button.y + currCanvas.c.y, currCanvas);
@@ -209,7 +243,7 @@ void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
 	}
 }
 
-void lineDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
+void lineDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window, bool& running)
 {
     bool done = false;
 
@@ -223,6 +257,7 @@ void lineDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window)
             
 			if (event.type == SDL_EVENT_QUIT) {
 				done = true;
+                running = false;
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
 				mouseX = event.motion.x;
 				mouseY = event.motion.y;

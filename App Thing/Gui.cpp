@@ -3,38 +3,6 @@
 #include "App Thing.h"
 #include "functions.h"
 
-void createRoundedRectangle(Rect& rectangle)
-{
-	std::vector<SDL_FPoint> temp;
-
-	SDL_FPoint p1 = rectangle.point1;
-	SDL_FPoint p2 = rectangle.point2;
-
-	float rad = rectangle.round;
-	if (rectangle.round > std::min(std::abs(p1.x - p2.x) / 2, std::abs(p1.y - p2.y) / 2)) {
-		rad = std::min(std::abs(p1.x - p2.x) / 2, std::abs(p1.y - p2.y) / 2);
-	}
-	
-	SDL_FPoint corners[4] = {
-		SDL_FPoint(std::max(p1.x, p2.x) - rad, std::max(p1.y, p2.y) - rad),
-		SDL_FPoint(std::min(p1.x, p2.x) + rad, std::max(p1.y, p2.y) - rad),
-		SDL_FPoint(std::min(p1.x, p2.x) + rad, std::min(p1.y, p2.y) + rad),
-		SDL_FPoint(std::max(p1.x, p2.x) - rad, std::min(p1.y, p2.y) + rad)
-	};
-
-	for (int c = 0; c < 4; c++) {
-		for (int i = 0; i < 90; i++) {
-			float theta = (90 * c + i) * std::numbers::pi_v<float> / 180.0f;
-			SDL_FPoint pt = SDL_FPoint(corners[c].x + (rad * std::cos(theta)), corners[c].y + (rad * std::sin(theta)));
-			temp.push_back({pt});
-		}
-	}
-
-	temp.push_back(SDL_FPoint(std::max(p1.x, p2.x), std::max(p1.y, p2.y) - rad));
-
-	rectangle.completedShape = temp;
-}
-
 Rect createRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r)
 {
 	Rect temp;
@@ -114,6 +82,26 @@ void renderSpecificMenuShape(SDL_Renderer* renderer, menuRect rect, SDL_Window* 
 		temp.push_back(temptemp);
 	}
 	SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
+}
+
+void moveGuiWindow(SDL_Renderer* renderer, guiWindow& guiWindow, SDL_Window* window)
+{
+    bool done = false;
+    while (! done) {
+        SDL_Event event;
+
+        if (SDL_WaitEvent(&event)) {
+            if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.) {
+                done = true;
+            }
+        }
+    }
+};
+
+void createDrawWindow(guiWindow& drawWindow)
+{
+    drawWindow.shapes.push_back(createRect(SDL_FPoint(0, 0), SDL_FPoint(50, 200), SDL_Color(255, 0, 0, 255), 1, 20));
+    drawWindow.shapes.push_back(createRect(SDL_FPoint(0, 25), SDL_FPoint(25, 200), SDL_Color(255, 0, 0, 255), 1, 20));
 }
 
 void createMenu(Canvas& currCanvas)

@@ -52,8 +52,6 @@ int main()
 
 	currCanvas.currLine.c = SDL_Color(0, 255, 0, 255);
 	currCanvas.currShape.c = SDL_Color(0, 255, 0, 255);
-	
-	createMenu(currCanvas);
 
 	bool running = true;
 
@@ -62,6 +60,10 @@ int main()
 
 	redrawScreen(renderer, currCanvas, window);
 	
+	guiWindow drawTab;
+
+
+
 	while (running)
 	{
 		SDL_Event event;
@@ -69,16 +71,15 @@ int main()
 		if (SDL_WaitEvent(&event)) {
 			if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
-					SDL_Keymod modState = SDL_GetModState();
 					if (checkRoundedMenuCollision(mouseX, mouseY, currCanvas.menuTable[0], window)) {
 						std::cout << "done!";
 					} else if (currCanvas.drawMode == 1) {
-						lineDraw(currCanvas, renderer, window);
+						lineDraw(currCanvas, renderer, window, running);
 					} else if (currCanvas.drawMode == 2) {
-						freeDraw(currCanvas, renderer, window);
+						freeDraw(currCanvas, renderer, window, running);
 					} else if (currCanvas.drawMode == 3) {
 						shapeFirstPoint(mouseX, mouseY, currCanvas);
-						shapeDraw(currCanvas, renderer, window);
+						shapeDraw(currCanvas, renderer, window, running);
 					}
 				}
 			} else if (event.type == SDL_EVENT_KEY_DOWN) {
