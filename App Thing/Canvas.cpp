@@ -129,7 +129,6 @@ void redrawScreen(SDL_Renderer* renderer, totalWindow renderWindow, SDL_Window* 
 		renderCurrShape(renderer, mouseX, mouseY, currCanvas);
 	}
 
-
 	renderMenu(renderWindow.drawTab, renderer, window);
 	
 	for (const guiWindow menu : renderWindow.windows) {

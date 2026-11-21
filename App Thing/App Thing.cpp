@@ -59,7 +59,6 @@ int main()
 	float mouseX, mouseY;
 	SDL_GetMouseState(&mouseX, &mouseY);
 
-	
 	guiWindow drawTab;
 
 	createDrawWindow(drawTab);

@@ -36,6 +36,7 @@ void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window)
 		temptemp.y = temptemp.y + guiWindow.y;
 		temp.push_back(temptemp);
 	}
+	SDL_SetRenderDrawColor(renderer, rect.c.r, rect.c.g, rect.c.b, rect.c.a);
 	SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
 
 	for (Rect menuObj : guiWindow.shapes) {
@@ -137,7 +138,7 @@ void moveDrawTabGuiWindow(SDL_Renderer* renderer, totalWindow& renderWindow, SDL
 void createDrawWindow(guiWindow& drawWindow)
 {
     drawWindow.body = createRect(SDL_FPoint(0, 0), SDL_FPoint(50, 200), SDL_Color(255, 0, 0, 255), 1, 25);
-    drawWindow.shapes.push_back(createRect(SDL_FPoint(0, 25), SDL_FPoint(25, 200), SDL_Color(255, 0, 0, 255), 1, 20));
+    drawWindow.shapes.push_back(createRect(SDL_FPoint(0, 50), SDL_FPoint(50, 200), SDL_Color(255, 0, 0, 255), 1, 20));
 
 	drawWindow.x = 0;
 	drawWindow.y = 0;
