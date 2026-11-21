@@ -69,7 +69,7 @@ int main()
 	renderWindow.windows.push_back(drawTab);
 
 	redrawScreen(renderer, renderWindow, window);
-	
+
 	while (running)
 	{
 		SDL_Event event;
@@ -80,16 +80,16 @@ int main()
 					if (checkRoundedMenuCollision(mouseX, mouseY, drawTab, window)) {
 						std::cout << "done!";
 					} else if (currCanvas.drawMode == 1) {
-						lineDraw(currCanvas, renderer, window, running);
+						lineDraw(renderWindow, renderer, window, running);
 					} else if (currCanvas.drawMode == 2) {
-						freeDraw(currCanvas, renderer, window, running);
+						freeDraw(renderWindow, renderer, window, running);
 					} else if (currCanvas.drawMode == 3) {
 						shapeFirstPoint(mouseX, mouseY, currCanvas);
-						shapeDraw(currCanvas, renderer, window, running);
+						shapeDraw(renderWindow, renderer, window, running);
 					}
 				}
 			} else if (event.type == SDL_EVENT_KEY_DOWN) {
-				cameraChange(currCanvas, event, renderer, window);
+				cameraChange(renderWindow, event, renderer, window);
 				bool changeMode = false;
 				changeState(event, currCanvas.drawMode, changeMode, currCanvas);
 			}

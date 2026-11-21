@@ -109,7 +109,7 @@ void menu(SDL_Renderer* renderer, std::vector<menuRect> menuBox, SDL_Window* win
 
 void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window)
 {
-	
+
 }
 
 void redrawScreen(SDL_Renderer* renderer, totalWindow renderWindow, SDL_Window* window)
@@ -172,7 +172,7 @@ void endPoints(std::optional<float> p1, std::optional<float> p2, Canvas& currCan
 	currCanvas.currLine.c = SDL_Color(0, 255, 0, 255);
 }
 
-void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas currCanvas)
+void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas& currCanvas)
 {
 	if (event.key.key == SDLK_1) {
 		drawMode = 1;
@@ -222,6 +222,7 @@ void freeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 	bool done = false;
 
 	float mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
 
 	Canvas& currCanvas = renderWindow.currCanvas;
 
@@ -260,6 +261,7 @@ void lineDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
     bool done = false;
 
     float mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
 
 	Canvas& currCanvas = renderWindow.currCanvas;
 
@@ -289,7 +291,7 @@ void lineDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 					redrawScreen(renderer, renderWindow, window);
                 }
             } else if (event.type == SDL_EVENT_KEY_DOWN) {
-				cameraChange(currCanvas, event, renderer, window);
+				cameraChange(renderWindow, event, renderer, window);
 				bool changeMode = false;
 				changeState(event, currCanvas.drawMode, changeMode, currCanvas);
 			}

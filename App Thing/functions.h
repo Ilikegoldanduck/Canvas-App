@@ -10,9 +10,9 @@ void menu(SDL_Renderer* renderer, std::vector<menuRect> menuBox, SDL_Window* win
 void redrawScreen(SDL_Renderer* renderer, totalWindow renderWindow, SDL_Window* window);
 void addPoints(float p1, float p2, Canvas& currCanvas);
 void endPoints(std::optional<float> p1, std::optional<float> p2, Canvas& currCanvas);
-void shapeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window, bool& running);
-void freeDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window, bool& running);
-void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas currCanvas);
+void shapeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window, bool& running);
+void freeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window, bool& running);
+void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas& currCanvas);
 void createRoundedRectangle(Rect& rectangle);
 Rect createRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r);
 menuRect createMenuRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r, float offsetX, float offsetY);
@@ -21,8 +21,7 @@ bool checkRoundedMenuCollision(float p1, float p2, guiWindow drawWindow, SDL_Win
 void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& viewport);
 void renderSpecificMenuShape(SDL_Renderer* renderer, menuRect rect, SDL_Window* window);
 void createMenu(Canvas& currCanvas);
-void cameraChange(Canvas& currCanvas, SDL_Event event, bool& redraw);
-void lineDraw(Canvas& currCanvas, SDL_Renderer* renderer, SDL_Window* window, bool& running);
-void cameraChange(Canvas& currCanvas, SDL_Event event, SDL_Renderer* renderer, SDL_Window* window);
+void lineDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window, bool& running);
+void cameraChange(totalWindow& renderWindow, SDL_Event event, SDL_Renderer* renderer, SDL_Window* window);
 void createDrawWindow(guiWindow& drawWindow);
-void moveGuiWindow(SDL_Renderer* renderer, guiWindow& guiWindow, Canvas& currCanvas, SDL_Window* window, float x, float y);
+void moveGuiWindow(SDL_Renderer* renderer, guiWindow& guiWindow, totalWindow& renderWindow, SDL_Window* window, float x, float y);
