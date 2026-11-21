@@ -27,6 +27,30 @@ menuRect createMenuRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, floa
 	return temp;
 }
 
+void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window)
+{
+	Rect rect = guiWindow.body;
+	std::vector<SDL_FPoint> temp;
+	for (SDL_FPoint temptemp : rect.completedShape) {
+		temptemp.x = temptemp.x + guiWindow.x;
+		temptemp.y = temptemp.y + guiWindow.y;
+		temp.push_back(temptemp);
+	}
+	SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
+
+	for (Rect menuObj : guiWindow.shapes) {
+		std::vector<SDL_FPoint> temp;
+
+		SDL_SetRenderDrawColor(renderer, menuObj.c.r, menuObj.c.g, menuObj.c.b, menuObj.c.a);
+		for (SDL_FPoint temptemp : menuObj.completedShape) {	
+			temptemp.x = temptemp.x + guiWindow.x;
+			temptemp.y = temptemp.y + guiWindow.y;
+			temp.push_back(temptemp);
+		}
+		SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
+	}
+}
+
 bool checkRoundedCollision(float p1, float p2, Rect rectangle)
 {
 	SDL_FPoint pt1 = rectangle.point1;
@@ -52,17 +76,20 @@ bool checkRoundedMenuCollision(float p1, float p2, guiWindow drawWindow, SDL_Win
 	SDL_FPoint pt1 = rectangle.point1;
 	SDL_FPoint pt2 = rectangle.point2;
 	
+	std::cout << std::to_string(p1) + "\n";
+	std::cout << std::to_string(p2) + "\n";
+
 	float rad = rectangle.round;
 	if (rectangle.round > std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2)) {
 		rad = std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2);
 	}
-
 
 	float cx = std::max(std::min(pt1.x, pt2.x) + rad + drawWindow.x, std::min(p1, std::max(pt1.x, pt2.x) - rad + drawWindow.x));
 	float cy = std::max(std::min(pt1.y, pt2.y) + rad + drawWindow.y, std::min(p2, std::max(pt1.y, pt2.y) - rad + drawWindow.y));
 
 	std::cout << std::to_string(cx) + "\n";
 	std::cout << std::to_string(cy) + "\n";
+	
 	return std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round;
 }
 
@@ -102,10 +129,11 @@ void moveGuiWindow(SDL_Renderer* renderer, guiWindow& guiWindow, totalWindow& re
 
 void createDrawWindow(guiWindow& drawWindow)
 {
-    drawWindow.body = createRect(SDL_FPoint(0, 0), SDL_FPoint(50, 200), SDL_Color(255, 0, 0, 255), 1, 20);
+    drawWindow.body = createRect(SDL_FPoint(0, 0), SDL_FPoint(50, 200), SDL_Color(255, 0, 0, 255), 1, 25);
     drawWindow.shapes.push_back(createRect(SDL_FPoint(0, 25), SDL_FPoint(25, 200), SDL_Color(255, 0, 0, 255), 1, 20));
 
-
+	drawWindow.x = 0;
+	drawWindow.y = 0;
 }	
 
 void createMenu(Canvas& currCanvas)

@@ -107,11 +107,6 @@ void menu(SDL_Renderer* renderer, std::vector<menuRect> menuBox, SDL_Window* win
 	}
 }
 
-void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window)
-{
-
-}
-
 void redrawScreen(SDL_Renderer* renderer, totalWindow renderWindow, SDL_Window* window)
 {
 	Canvas& currCanvas = renderWindow.currCanvas;
