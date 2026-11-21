@@ -43,10 +43,8 @@ int main()
 
 	SDL_CaptureMouse(true);
 
-	Canvas currCanvas;
-
 	totalWindow renderWindow;
-	renderWindow.currCanvas = currCanvas;
+	Canvas& currCanvas = renderWindow.currCanvas;
 
 	currCanvas.drawMode = 1;
 
@@ -93,7 +91,7 @@ int main()
 			} else if (event.type == SDL_EVENT_KEY_DOWN) {
 				cameraChange(renderWindow, event, renderer, window);
 				bool changeMode = false;
-				changeState(event, currCanvas.drawMode, changeMode, currCanvas);
+				changeState(event, changeMode, currCanvas);
 			}
 
 			if (event.type == SDL_EVENT_QUIT) {

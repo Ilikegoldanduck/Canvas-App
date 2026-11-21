@@ -148,6 +148,9 @@ void addPoints(float p1, float p2, Canvas& currCanvas)
 
 void endPoints(std::optional<float> p1, std::optional<float> p2, Canvas& currCanvas)
 {
+	if (currCanvas.currLine.points.empty()) {
+		return;
+	}
 	if (p1 && p2) {
 		currCanvas.currLine.points.push_back(SDL_FPoint(*p1, *p2));
 	}
@@ -170,16 +173,16 @@ void endPoints(std::optional<float> p1, std::optional<float> p2, Canvas& currCan
 	currCanvas.currLine.c = SDL_Color(0, 255, 0, 255);
 }
 
-void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas& currCanvas)
+void changeState(SDL_Event event, bool& changeMode, Canvas& currCanvas)
 {
 	if (event.key.key == SDLK_1) {
-		drawMode = 1;
+		currCanvas.drawMode = 1;
 		changeMode = true;
 	} else if (event.key.key == SDLK_2) {
-		drawMode = 2;
+		currCanvas.drawMode = 2;
 		changeMode = true;
 	} else if (event.key.key == SDLK_3) {
-		drawMode = 3;
+		currCanvas.drawMode = 3;
 		changeMode = true;
 	}
 	if (changeMode) {
@@ -243,6 +246,7 @@ void freeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
 				mouseX = event.motion.x;
 				mouseY = event.motion.y;
+				addPoints(mouseX, mouseY, currCanvas);
 				redrawScreen(renderer, renderWindow, window);
 			}
 		}
@@ -291,7 +295,7 @@ void lineDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
             } else if (event.type == SDL_EVENT_KEY_DOWN) {
 				cameraChange(renderWindow, event, renderer, window);
 				bool changeMode = false;
-				changeState(event, currCanvas.drawMode, changeMode, currCanvas);
+				changeState(event, changeMode, currCanvas);
 			}
         }
     }

@@ -90,6 +90,8 @@ bool checkRoundedMenuCollision(float p1, float p2, guiWindow drawWindow, SDL_Win
 	std::cout << std::to_string(cx) + "\n";
 	std::cout << std::to_string(cy) + "\n";
 
+	std::cout << std::to_string(std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2))) + "|" + std::to_string(rectangle.round) + "\n";
+
 	return std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round;
 }
 

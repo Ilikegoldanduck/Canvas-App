@@ -12,7 +12,7 @@ void addPoints(float p1, float p2, Canvas& currCanvas);
 void endPoints(std::optional<float> p1, std::optional<float> p2, Canvas& currCanvas);
 void shapeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window, bool& running);
 void freeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window, bool& running);
-void changeState(SDL_Event event, int& drawMode, bool& changeMode, Canvas& currCanvas);
+void changeState(SDL_Event event, bool& changeMode, Canvas& currCanvas);
 void createRoundedRectangle(Rect& rectangle);
 Rect createRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r);
 menuRect createMenuRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r, float offsetX, float offsetY);
