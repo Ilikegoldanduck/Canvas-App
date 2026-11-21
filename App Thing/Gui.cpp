@@ -89,7 +89,7 @@ bool checkRoundedMenuCollision(float p1, float p2, guiWindow drawWindow, SDL_Win
 
 	std::cout << std::to_string(cx) + "\n";
 	std::cout << std::to_string(cy) + "\n";
-	
+
 	return std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round;
 }
 
@@ -112,6 +112,10 @@ void renderSpecificMenuShape(SDL_Renderer* renderer, menuRect rect, SDL_Window* 
 void moveGuiWindow(SDL_Renderer* renderer, guiWindow& guiWindow, totalWindow& renderWindow, SDL_Window* window, float x, float y)
 {
     bool done = false;
+
+	float windowX = guiWindow.x;
+	float windowY = guiWindow.y;
+
     while (! done) {
         SDL_Event event;
 
@@ -119,8 +123,9 @@ void moveGuiWindow(SDL_Renderer* renderer, guiWindow& guiWindow, totalWindow& re
             if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == SDL_BUTTON_LEFT) {
                 done = true;
             } else if (event.type == SDL_EVENT_MOUSE_MOTION) {
-				guiWindow.x = guiWindow.x - (event.motion.x - x);
-				guiWindow.y = guiWindow.y - (event.motion.y - y);
+				guiWindow.x = windowX + (event.motion.x - x);
+				guiWindow.y = windowY + (event.motion.y - y);
+				std::cout << std::to_string(guiWindow.x) + "|" + std::to_string(guiWindow.y) + "\n";
 				redrawScreen(renderer, renderWindow, window);
 			}
         }

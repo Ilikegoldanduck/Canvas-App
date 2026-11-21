@@ -77,7 +77,9 @@ int main()
 		if (SDL_WaitEvent(&event)) {
 			if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
+					SDL_GetMouseState(&mouseX, &mouseY);
 					if (checkRoundedMenuCollision(mouseX, mouseY, drawTab, window)) {
+						moveGuiWindow(renderer, drawTab, renderWindow, window, mouseX, mouseY);
 						std::cout << "done!";
 					} else if (currCanvas.drawMode == 1) {
 						lineDraw(renderWindow, renderer, window, running);
