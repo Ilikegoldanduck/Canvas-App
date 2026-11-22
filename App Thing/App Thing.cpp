@@ -206,7 +206,7 @@ int main()
 	currCanvas.currShape.c = SDL_Color(0, 255, 0, 255);
 	currCanvas.currShape.round = 0;
 
-	load(currCanvas, "canvasSave.txt");
+	//load(currCanvas, "canvasSave.txt");
 
 	bool running = true;
 

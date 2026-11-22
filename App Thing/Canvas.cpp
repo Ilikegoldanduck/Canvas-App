@@ -378,15 +378,14 @@ void erase(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window
 					if (! SDL_PointInRectFloat(&point, &strokes.bounds)) {
 						continue;
 					}
-					size_t index = 0;
-					for (SDL_FPoint strokePoints : strokes.points) {
-						if (std::sqrt(std::pow(strokePoints.x - mouseX, 2) + std::pow(strokePoints.y - mouseY, 2)) < 3) {
-							continue;
-						} else {
-							index = index + 1;
+					int index = -1;
+					for (size_t i = 0; i < strokes.points.size(); ++i) {
+						if (std::pow(strokes.points[i].x - mouseX, 2) + std::pow(strokes.points[i].y - mouseY, 2) < 9) {
+							index = i;
+							break;
 						}
 					}
-					if (index == strokes.points.size()) {
+					if (index < 0) {
 						continue;
 					}
 					Stroke stroke1;
@@ -394,16 +393,32 @@ void erase(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window
 					stroke1.c = strokes.c;
 					stroke1.t = strokes.t;
 					
-					for (size_t i = index + 1; i < static_cast<int>(strokes.points.size()); ++i) {
-						stroke1.points.push_back(SDL_FPoint(strokes.points[i].x, strokes.points[i].y));
-					}
 
-					renderWindow.currCanvas.lines.push_back(stroke1);
+					if (static_cast<int>(strokes.points.size()) - index > 2) {
+						float x1, y1, x2, y2;
+						x1 = strokes.points[index + 1].x;
+						y1 = strokes.points[index + 1].y;
+						x2 = x1;
+						y2 = y1;
+						for (size_t i = index + 1; i < static_cast<int>(strokes.points.size()); ++i) {
+							stroke1.points.push_back(SDL_FPoint(strokes.points[i].x, strokes.points[i].y));
+							x1 = std::min(x1, strokes.points[i].x);
+							y1 = std::min(y1, strokes.points[i].y);
+							x2 = std::max(x2, strokes.points[i].x);
+							y2 = std::max(y2, strokes.points[i].y);
+						}
+						stroke1.bounds = SDL_FRect(x1, y1, x2 - x1 + 2 * strokes.t, y2 - y1 + 2 * strokes.t);
+					}
 
 					for (size_t i = 0; i < index; ++i) {
 						stroke2.push_back(SDL_FPoint(strokes.points[i].x, strokes.points[i].y));
 					}
+
 					strokes.points = stroke2;
+					
+					if (stroke1.points.size() > 1) {
+						renderWindow.currCanvas.lines.push_back(stroke1);
+					}
 					
 				}
 				redrawScreen(renderer, renderWindow, window);
