@@ -223,6 +223,9 @@ void changeState(SDL_Event event, bool& changeMode, Canvas& currCanvas)
 	} else if (event.key.key == SDLK_3) {
 		currCanvas.drawMode = 3;
 		changeMode = true;
+	} else if (event.key.key == SDLK_4) {
+		currCanvas.drawMode = 4;
+		changeMode = true;
 	}
 	if (changeMode) {
 		if (!currCanvas.currLine.points.empty()) {
@@ -240,7 +243,7 @@ void shapeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* wi
 	{
 		SDL_Event event;
 
-		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS && SDL_GetWindowFlags(window))
+		if (SDL_WaitEvent(&event) && (SDL_WINDOW_MOUSE_FOCUS & SDL_GetWindowFlags(window)))
 		{
 			if (event.type == SDL_EVENT_QUIT) {
 				done = true;
@@ -273,7 +276,7 @@ void freeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 	{
 		SDL_Event event;
 
-		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS && SDL_GetWindowFlags(window))
+		if (SDL_WaitEvent(&event) && (SDL_WINDOW_MOUSE_FOCUS & SDL_GetWindowFlags(window)))
 		{
 			
 			if (event.type == SDL_EVENT_QUIT) {
@@ -291,7 +294,7 @@ void freeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 				addPoints(mouseX, mouseY, currCanvas);
 				redrawScreen(renderer, renderWindow, window);
 			}
-		} else if (! SDL_WINDOW_MOUSE_FOCUS) {
+		} else if (! (SDL_WINDOW_MOUSE_FOCUS & SDL_GetWindowFlags(window))) {
 			done = true;
 			endPoints(std::nullopt, std::nullopt, currCanvas);
 		}
@@ -318,7 +321,7 @@ void lineDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 
         SDL_Event event;
 
-		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS && SDL_GetWindowFlags(window)) {
+		if (SDL_WaitEvent(&event) && (SDL_WINDOW_MOUSE_FOCUS & SDL_GetWindowFlags(window))) {
             
 			if (event.type == SDL_EVENT_QUIT) {
 				done = true;
@@ -346,6 +349,46 @@ void lineDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 			}
         }
     }
+}
+
+void erase(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window, bool& running)
+{
+	bool done = false;
+
+	float mouseX, mouseY;
+	SDL_GetMouseState(&mouseX, &mouseY);
+
+	while (!done) {
+
+		SDL_Event event;
+
+		if (SDL_WaitEvent(&event) && (SDL_WINDOW_MOUSE_FOCUS & SDL_GetWindowFlags(window))) {
+			if (event.type == SDL_EVENT_QUIT) {
+				done = true;
+                running = false;
+			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+				if (event.button.button == SDL_BUTTON_LEFT) {
+					done = true;
+				}
+			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
+				mouseX = event.motion.x;
+				mouseY = event.motion.y;
+				SDL_FPoint point = SDL_FPoint(mouseX, mouseY);
+				for (Stroke &strokes : renderWindow.currCanvas.lines) {
+					if (! SDL_PointInRectFloat(&point, &strokes.bounds)) {
+						continue;
+					}
+					for (SDL_FPoint strokePoints : strokes.points) {
+						if (std::sqrt(std::pow(strokePoints.x - mouseX, 2) + std::pow(strokePoints.y - mouseY, 2)) < 3) {
+							
+						}
+					}
+				}
+				redrawScreen(renderer, renderWindow, window);
+			}
+		}
+
+	}
 }
 
 void cameraChange(totalWindow& renderWindow, SDL_Event event, SDL_Renderer* renderer, SDL_Window* window)
