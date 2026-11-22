@@ -103,7 +103,7 @@ void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window)
 		}
 
 		
-		SDL_RenderDebugText(renderer, menuButton.rect.point1.x, menuButton.rect.point1.y, menuButton.text);
+		//SDL_RenderDebugText(renderer, menuButton.rect.point1.x, menuButton.rect.point1.y, menuButton.text);
 
 		SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
 	}

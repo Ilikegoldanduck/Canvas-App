@@ -75,7 +75,7 @@ int main()
 	{
 		SDL_Event event;
 
-		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS) {
+		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS && SDL_GetWindowFlags(window)) {
 			if (event.type == SDL_EVENT_QUIT) {
 				running = false;
 			}

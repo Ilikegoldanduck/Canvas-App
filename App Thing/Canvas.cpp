@@ -7,6 +7,8 @@ using namespace std;
 
 bool currRect = false;
 
+
+
 void createRoundedRectangle(Rect& rectangle)
 {
 	std::vector<SDL_FPoint> temp;
@@ -39,7 +41,7 @@ void createRoundedRectangle(Rect& rectangle)
 	rectangle.completedShape = temp;
 }
 
-void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, const Canvas currCanvas)
+void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Canvas currCanvas)
 {
 	std::vector<SDL_FPoint> temp = currCanvas.currLine.points;
 	temp.push_back(SDL_FPoint(p1 + currCanvas.c.x, p2 + currCanvas.c.y));
@@ -145,7 +147,7 @@ void menu(SDL_Renderer* renderer, const std::vector<menuRect> menuBox, SDL_Windo
 	}
 }
 
-void redrawScreen(SDL_Renderer* renderer, const totalWindow renderWindow, SDL_Window* window)
+void redrawScreen(SDL_Renderer* renderer, totalWindow renderWindow, SDL_Window* window)
 {
 	Canvas currCanvas = renderWindow.currCanvas;
 
@@ -238,7 +240,7 @@ void shapeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* wi
 	{
 		SDL_Event event;
 
-		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS)
+		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS && SDL_GetWindowFlags(window))
 		{
 			if (event.type == SDL_EVENT_QUIT) {
 				done = true;
@@ -271,7 +273,7 @@ void freeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 	{
 		SDL_Event event;
 
-		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS)
+		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS && SDL_GetWindowFlags(window))
 		{
 			
 			if (event.type == SDL_EVENT_QUIT) {
@@ -316,7 +318,7 @@ void lineDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 
         SDL_Event event;
 
-		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS) {
+		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS && SDL_GetWindowFlags(window)) {
             
 			if (event.type == SDL_EVENT_QUIT) {
 				done = true;
