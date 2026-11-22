@@ -18,11 +18,14 @@ void quit(SDL_Window* window, const Canvas& currCanvas)
 	}
 
 	for (Stroke strokes : currCanvas.lines) {
-		file << "ss";
-		for (SDL_FPoint points : strokes.points) {
-			file << std::to_string(points.x) + "'" + to_string(points.y) + "|";
+		if (strokes.points.size() > 1)
+		{
+			file << "ss";
+			for (SDL_FPoint points : strokes.points) {
+				file << std::to_string(points.x) + "'" + to_string(points.y) + "|";
+			}
+			file << "se" << std::to_string(strokes.c.r) + "'" + std::to_string(strokes.c.g) + "'" + std::to_string(strokes.c.b) + "'" + std::to_string(strokes.c.a) + "'" + std::to_string(strokes.t) + "\n";
 		}
-		file << "se" << std::to_string(strokes.c.r) + "'" + std::to_string(strokes.c.g) + "'" + std::to_string(strokes.c.b) + "'" + std::to_string(strokes.c.a) + "'" + std::to_string(strokes.t) + "\n";
 	}
 	for (Rect rect : currCanvas.shapes) {
 		file << "rs";
@@ -206,7 +209,7 @@ int main()
 	currCanvas.currShape.c = SDL_Color(0, 255, 0, 255);
 	currCanvas.currShape.round = 0;
 
-	//load(currCanvas, "canvasSave.txt");
+	load(currCanvas, "canvasSave.txt");
 
 	bool running = true;
 
