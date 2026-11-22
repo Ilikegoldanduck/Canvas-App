@@ -28,3 +28,4 @@ void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window)
 bool drawTab_checkGuiCollision(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window, totalWindow& renderWindow);
 bool checkButtonCollision(float p1, float p2, const Rect& rectangle, const guiWindow guiWindow);
 void erase(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window, bool& running);
+bool checkInsideScreen(SDL_Window* window, const float mousex, const float mousey);

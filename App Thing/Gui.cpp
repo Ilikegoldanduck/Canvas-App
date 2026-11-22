@@ -197,12 +197,13 @@ void createDrawWindow(guiWindow& drawWindow)
 {
 	drawWindow.name = "drawTab";
 
-    drawWindow.body = createRect(SDL_FPoint(0, 0), SDL_FPoint(50, 200), SDL_Color(255, 0, 0, 255), 1, 25);
-    drawWindow.shapes.push_back(createRect(SDL_FPoint(0, 50), SDL_FPoint(50, 200), SDL_Color(255, 0, 0, 255), 1, 20));
+    drawWindow.body = createRect(SDL_FPoint(0, 0), SDL_FPoint(50, 250), SDL_Color(255, 0, 0, 255), 1, 25);
+    drawWindow.shapes.push_back(createRect(SDL_FPoint(0, 50), SDL_FPoint(50, 250), SDL_Color(255, 0, 0, 255), 1, 20));
 
 	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 50), SDL_FPoint(50, 100), SDL_Color(255, 0, 0, 255), 1, 20, "lineDraw", ""));
 	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 100), SDL_FPoint(50, 150), SDL_Color(255, 0, 0, 255), 1, 20, "freeDraw", ""));
 	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 150), SDL_FPoint(50, 200), SDL_Color(255, 0, 0, 255), 1, 20, "shapeDraw", ""));
+	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 200), SDL_FPoint(50, 250), SDL_Color(255, 0, 0, 255), 1, 20, "erase", ""));
 
 	drawWindow.x = 0;
 	drawWindow.y = 0;

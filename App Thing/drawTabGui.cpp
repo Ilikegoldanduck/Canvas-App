@@ -18,6 +18,8 @@ bool drawTab_checkGuiCollision(guiWindow guiWindow, SDL_Renderer* renderer, SDL_
                 renderWindow.currCanvas.drawMode = 2;
             } else if (button.name == "shapeDraw") {
                 renderWindow.currCanvas.drawMode = 3;
+            } else if (button.name == "erase") {
+                renderWindow.currCanvas.drawMode = 4;
             }
             return true;
         }

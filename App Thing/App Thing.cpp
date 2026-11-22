@@ -231,7 +231,7 @@ int main()
 			}
 
 			if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
-				if (event.button.button == SDL_BUTTON_LEFT) {
+				if (event.button.button == SDL_BUTTON_LEFT && checkInsideScreen(window, event.button.x, event.button.y)) {
 					SDL_GetMouseState(&mouseX, &mouseY);
 					if (checkMenuCollision(mouseX, mouseY, renderWindow, window, renderer)) {
 						std::cout << "done!";

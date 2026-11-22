@@ -7,7 +7,16 @@ using namespace std;
 
 bool currRect = false;
 
+bool checkInsideScreen(SDL_Window* window, const float mousex, const float mousey)
+{
+	int width, height;
+	SDL_GetWindowSize(window, &width, &height);
 
+	if (mousex > 0 && mousey > 0 && mousex < width && mousey < height) {
+		return true;
+	}
+	return false;
+}
 
 void createRoundedRectangle(Rect& rectangle)
 {
@@ -256,7 +265,7 @@ void shapeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* wi
 					currRect = false;
 					redrawScreen(renderer, renderWindow, window);
 				}
-			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
+			} else if (event.type == SDL_EVENT_MOUSE_MOTION && checkInsideScreen(window, event.button.x, event.button.y)) {
 				redrawScreen(renderer, renderWindow, window);
 			}
 		}
@@ -282,19 +291,19 @@ void freeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 			if (event.type == SDL_EVENT_QUIT) {
 				done = true;
                 running = false;
-			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP) {
+			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && checkInsideScreen(window, event.button.x, event.button.y)) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					endPoints(event.button.x + currCanvas.c.x, event.button.y + currCanvas.c.y, currCanvas);
 					done = true;	
 					redrawScreen(renderer, renderWindow, window);
 				}
-			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
+			} else if (event.type == SDL_EVENT_MOUSE_MOTION && checkInsideScreen(window, event.button.x, event.button.y)) {
 				mouseX = event.motion.x;
 				mouseY = event.motion.y;
 				addPoints(mouseX, mouseY, currCanvas);
 				redrawScreen(renderer, renderWindow, window);
 			}
-		} else if (! (SDL_WINDOW_MOUSE_FOCUS & SDL_GetWindowFlags(window))) {
+		} else if (! checkInsideScreen(window, event.button.x, event.button.y)) {
 			done = true;
 			endPoints(std::nullopt, std::nullopt, currCanvas);
 		}
@@ -326,11 +335,11 @@ void lineDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 			if (event.type == SDL_EVENT_QUIT) {
 				done = true;
                 running = false;
-			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
+			} else if (event.type == SDL_EVENT_MOUSE_MOTION && checkInsideScreen(window, event.button.x, event.button.y)) {
 				mouseX = event.motion.x;
 				mouseY = event.motion.y;
 				redrawScreen(renderer, renderWindow, window);
-			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
+			} else if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN && checkInsideScreen(window, event.button.x, event.button.y)) {
                 SDL_Keymod modState = SDL_GetModState();
 
                 if (modState & SDL_KMOD_CTRL) {
@@ -370,7 +379,7 @@ void erase(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					done = true;
 				}
-			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
+			} else if (event.type == SDL_EVENT_MOUSE_MOTION && checkInsideScreen(window, event.button.x, event.button.y)) {
 				mouseX = event.motion.x + renderWindow.currCanvas.c.x;
 				mouseY = event.motion.y + renderWindow.currCanvas.c.y;
 				SDL_FPoint point = SDL_FPoint(mouseX, mouseY);
