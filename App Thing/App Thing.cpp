@@ -55,10 +55,16 @@ void load(Canvas& currCanvas, std::string chosenFile)
 
 			size_t end = line.find("se", 2);
 
+			if (end == std::string::npos) {
+				continue;
+			}
+
 			std::string pointsData = line.substr(2, end - 2);
 			std::stringstream pointsStream(pointsData);
 
 			std::string point;
+
+			float x1, y1, x2, y2;
 
 			while (std::getline(pointsStream, point, '|')) {
 				std::stringstream pointStream(point);
@@ -88,8 +94,23 @@ void load(Canvas& currCanvas, std::string chosenFile)
 			stroke.c.a = values[3];
 			stroke.t = values[4];
 
+
+			x1 = stroke.points[0].x;
+			y1 = stroke.points[0].y;
+			x2 = x1;
+			y2 = y1;
+			for (const SDL_FPoint& point : stroke.points)
+			{
+				x1 = std::min(x1, point.x);
+				x2 = std::max(x2, point.x);
+				y1 = std::min(y1, point.y);
+				y2 = std::max(y2, point.y);
+			}
+			
+			stroke.bounds = SDL_FRect(x1, y1, x2 - x1 + 2 * stroke.t, y2 - y1 + 2 * stroke.t);
+
+			currCanvas.lines.push_back(stroke);
 		} else if (line.starts_with("rs")) {
-			Rect rect;
 
 			size_t end = line.find("re", 2);
 
@@ -97,7 +118,40 @@ void load(Canvas& currCanvas, std::string chosenFile)
 				continue;
 			}
 
+			std::string pointsData = line.substr(2, end - 2);
+			std::stringstream pointsStream(pointsData);
 
+			std::string point1;
+			std::string point2;
+
+			std::getline(pointsStream, point1, '|');
+			std::getline(pointsStream, point2);
+
+			std::stringstream point1Stream(point1);
+			std::stringstream point2Stream(point2);
+
+			std::string x1, y1;
+			std::string x2, y2;
+
+			std::getline(point1Stream, x1, '\'');
+			std::getline(point1Stream, y1);
+			std::getline(point2Stream, x2, '\'');
+			std::getline(point2Stream, y2);
+
+			std::string props = line.substr(end + 2);
+
+			std::stringstream propStream(props);
+
+			std::string vals;
+			std::vector<float> values;
+
+			while (std::getline(propStream, vals, '\'')) {
+				values.push_back(std::stof(vals));
+			}
+
+			Rect rect = createRect(SDL_FPoint(std::stof(x1), std::stof(y1)), SDL_FPoint(std::stof(x2), std::stof(y2)), SDL_Color(values[0], values[1], values[2], values[3]), values[4], values[5]);
+
+			currCanvas.shapes.push_back(rect);
 		}
 	}
 }
@@ -171,7 +225,7 @@ int main()
 	{
 		SDL_Event event;
 
-		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS && SDL_GetWindowFlags(window)) {
+		if (SDL_WaitEvent(&event) && (SDL_WINDOW_MOUSE_FOCUS & SDL_GetWindowFlags(window))) {
 			if (event.type == SDL_EVENT_QUIT) {
 				running = false;
 			}
@@ -197,5 +251,8 @@ int main()
 			}
 		}
 	}
+
+	quit(window, currCanvas);
+
 	return 0;
 }
