@@ -37,9 +37,10 @@ void createRoundedRectangle(Rect& rectangle)
 	rectangle.completedShape = temp;
 }
 
-void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Canvas currCanvas)
+void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, const Canvas currCanvas)
 {
-	currCanvas.currLine.points.push_back(SDL_FPoint(p1 + currCanvas.c.x, p2 + currCanvas.c.y));
+	std::vector<SDL_FPoint> temp = currCanvas.currLine.points;
+	temp.push_back(SDL_FPoint(p1 + currCanvas.c.x, p2 + currCanvas.c.y));
 	SDL_SetRenderDrawColor(renderer, currCanvas.currLine.c.r, currCanvas.currLine.c.g, currCanvas.currLine.c.b, currCanvas.currLine.c.a);
 	std::vector<SDL_FPoint> transformed;
 	
@@ -53,7 +54,7 @@ void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Canvas currCanva
 	SDL_RenderLines(renderer, transformed.data(), static_cast<int>(currCanvas.currLine.points.size()));
 }
 
-void renderCurrShape(SDL_Renderer* renderer, float p1, float p2, Canvas currCanvas)
+void renderCurrShape(SDL_Renderer* renderer, float p1, float p2, const Canvas currCanvas)
 {
 	SDL_FRect rect = {std::min(currCanvas.currShape.point1.x, p1), std::min(currCanvas.currShape.point1.y, p2), std::abs(currCanvas.currShape.point1.x - p1), std::abs(currCanvas.currShape.point1.y - p2)};
 	
@@ -61,7 +62,7 @@ void renderCurrShape(SDL_Renderer* renderer, float p1, float p2, Canvas currCanv
 	SDL_RenderRect(renderer, &rect);
 }
 
-void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& viewport)
+void renderLines(SDL_Renderer* renderer, const Canvas& currCanvas, const SDL_FRect& viewport)
 {	
 	std::vector<SDL_FPoint> transformed;
 	for (const Stroke& stroke : currCanvas.lines)
@@ -87,7 +88,7 @@ void renderLines(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& vi
 	}
 }
 
-void renderShapes(SDL_Renderer* renderer, Canvas& currCanvas, const SDL_FRect& viewport)
+void renderShapes(SDL_Renderer* renderer, const Canvas& currCanvas, const SDL_FRect& viewport)
 {
 	std::vector<SDL_FPoint> transformed;
 	for (const Rect rectangle : currCanvas.shapes)
@@ -135,16 +136,16 @@ void shapeSecondPoint(float p1, float p2, Canvas& currCanvas)
 	currCanvas.currShape.round = 0;
 }
 
-void menu(SDL_Renderer* renderer, std::vector<menuRect> menuBox, SDL_Window* window)
+void menu(SDL_Renderer* renderer, const std::vector<menuRect> menuBox, SDL_Window* window)
 {	
 	for (const menuRect temp : menuBox) {
 		renderSpecificMenuShape(renderer, temp, window);
 	}
 }
 
-void redrawScreen(SDL_Renderer* renderer, totalWindow renderWindow, SDL_Window* window)
+void redrawScreen(SDL_Renderer* renderer, const totalWindow renderWindow, SDL_Window* window)
 {
-	Canvas& currCanvas = renderWindow.currCanvas;
+	Canvas currCanvas = renderWindow.currCanvas;
 
 	SDL_SetRenderDrawColor(renderer, 40, 45, 60, 255);
 	SDL_RenderClear(renderer);

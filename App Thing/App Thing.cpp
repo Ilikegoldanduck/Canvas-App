@@ -74,7 +74,11 @@ int main()
 	{
 		SDL_Event event;
 
-		if (SDL_WaitEvent(&event)) {
+		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS) {
+			if (event.type == SDL_EVENT_QUIT) {
+				running = false;
+			}
+
 			if (event.type == SDL_EVENT_MOUSE_BUTTON_DOWN) {
 				if (event.button.button == SDL_BUTTON_LEFT) {
 					SDL_GetMouseState(&mouseX, &mouseY);
@@ -93,10 +97,6 @@ int main()
 				cameraChange(renderWindow, event, renderer, window);
 				bool changeMode = false;
 				changeState(event, changeMode, currCanvas);
-			}
-
-			if (event.type == SDL_EVENT_QUIT) {
-				running = false;
 			}
 		}
 	}
