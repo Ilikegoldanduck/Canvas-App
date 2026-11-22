@@ -3,6 +3,22 @@
 #include "App Thing.h"
 #include "functions.h"
 
+bool checkButtonCollision(float p1, float p2, const Rect& rectangle, const guiWindow guiWindow)
+{
+    SDL_FPoint pt1 = rectangle.point1;
+    SDL_FPoint pt2 = rectangle.point2;
+
+    float rad = rectangle.round;
+    if (rectangle.round > std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2)) {
+        rad = std::min(std::abs(pt1.x - pt2.x) / 2, std::abs(pt1.y - pt2.y) / 2);
+    }
+
+    float cx = std::max(std::min(pt1.x, pt2.x) + rad + guiWindow.x, std::min(p1, std::max(pt1.x, pt2.x) - rad + guiWindow.x));
+    float cy = std::max(std::min(pt1.y, pt2.y) + rad + guiWindow.y, std::min(p2, std::max(pt1.y, pt2.y) - rad + guiWindow.y));
+
+    return std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round;
+}
+
 Rect createRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r)
 {
 	Rect temp;
@@ -16,6 +32,27 @@ Rect createRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r)
 	createRoundedRectangle(temp);
 
 	return temp;
+}
+
+Button createButton(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r, std::string name, std::string text)
+{
+	Button button;
+	
+	Rect temp;
+	temp.point1 = p1;
+	temp.point2 = p2;
+	temp.c = c;
+	temp.t = t;
+	temp.round = r;
+	temp.bounds = SDL_FRect(std::min(p1.x, p2.x), std::min(p1.y, p2.y), std::abs(p1.x - p2.x), std::abs(p1.y - p2.y));
+
+	button.rect = temp;
+	button.name = name;
+	button.text = text;
+
+	createRoundedRectangle(temp);
+
+	return button;
 }
 
 menuRect createMenuRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r, float offsetX, float offsetY)
@@ -41,6 +78,19 @@ void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window)
 	SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
 
 	for (Rect menuObj : guiWindow.shapes) {
+		std::vector<SDL_FPoint> temp;
+
+		SDL_SetRenderDrawColor(renderer, menuObj.c.r, menuObj.c.g, menuObj.c.b, menuObj.c.a);
+		for (SDL_FPoint temptemp : menuObj.completedShape) {	
+			temptemp.x = temptemp.x + guiWindow.x;
+			temptemp.y = temptemp.y + guiWindow.y;
+			temp.push_back(temptemp);
+		}
+		SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
+	}
+	
+	for (Button menuButton : guiWindow.buttons) {
+		Rect menuObj = menuButton.rect;
 		std::vector<SDL_FPoint> temp;
 
 		SDL_SetRenderDrawColor(renderer, menuObj.c.r, menuObj.c.g, menuObj.c.b, menuObj.c.a);
@@ -86,6 +136,9 @@ bool checkMenuCollision(float p1, float p2, totalWindow& renderWindow, SDL_Windo
 		float cy = std::max(std::min(pt1.y, pt2.y) + rad + drawWindow.y, std::min(p2, std::max(pt1.y, pt2.y) - rad + drawWindow.y));
 
 		if (std::sqrt(std::pow(p1 - cx, 2) + std::pow(p2 - cy, 2)) <= rectangle.round) {
+			if (drawWindow.name == "drawTab" && drawTab_checkGuiCollision(drawWindow, renderer, window, renderWindow)) {
+				return true;
+			}
 			moveDrawTabGuiWindow(renderer, renderWindow, drawWindow, window, p1, p2);
 			return true;
 		}
@@ -133,8 +186,14 @@ void moveDrawTabGuiWindow(SDL_Renderer* renderer, totalWindow& renderWindow, gui
 
 void createDrawWindow(guiWindow& drawWindow)
 {
+	drawWindow.name = "drawTab";
+
     drawWindow.body = createRect(SDL_FPoint(0, 0), SDL_FPoint(50, 200), SDL_Color(255, 0, 0, 255), 1, 25);
     drawWindow.shapes.push_back(createRect(SDL_FPoint(0, 50), SDL_FPoint(50, 200), SDL_Color(255, 0, 0, 255), 1, 20));
+
+	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 50), SDL_FPoint(50, 100), SDL_Color(255, 0, 0, 255), 1, 20, "lineDraw", ""));
+	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 100), SDL_FPoint(50, 150), SDL_Color(255, 0, 0, 255), 1, 20, "freeDraw", ""));
+	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 150), SDL_FPoint(50, 200), SDL_Color(255, 0, 0, 255), 1, 20, "shapeDraw", ""));
 
 	drawWindow.x = 0;
 	drawWindow.y = 0;

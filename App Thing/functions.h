@@ -25,4 +25,5 @@ void cameraChange(totalWindow& renderWindow, SDL_Event event, SDL_Renderer* rend
 void createDrawWindow(guiWindow& drawWindow);
 void moveDrawTabGuiWindow(SDL_Renderer* renderer, totalWindow& renderWindow, guiWindow& drawTab, SDL_Window* window, float x, float y);
 void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window);
-bool drawTab_checkGuiCollision(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window);
+bool drawTab_checkGuiCollision(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window, totalWindow& renderWindow);
+bool checkButtonCollision(float p1, float p2, const Rect& rectangle, const guiWindow guiWindow);
