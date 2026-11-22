@@ -371,8 +371,8 @@ void erase(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window
 					done = true;
 				}
 			} else if (event.type == SDL_EVENT_MOUSE_MOTION) {
-				mouseX = event.motion.x;
-				mouseY = event.motion.y;
+				mouseX = event.motion.x + renderWindow.currCanvas.c.x;
+				mouseY = event.motion.y + renderWindow.currCanvas.c.y;
 				SDL_FPoint point = SDL_FPoint(mouseX, mouseY);
 				for (Stroke &strokes : renderWindow.currCanvas.lines) {
 					if (! SDL_PointInRectFloat(&point, &strokes.bounds)) {
@@ -386,18 +386,25 @@ void erase(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window
 							index = index + 1;
 						}
 					}
+					if (index == strokes.points.size()) {
+						continue;
+					}
 					Stroke stroke1;
 					std::vector<SDL_FPoint> stroke2;
 					stroke1.c = strokes.c;
 					stroke1.t = strokes.t;
 					
 					for (size_t i = index + 1; i < static_cast<int>(strokes.points.size()); ++i) {
-						stroke1.points.push_back(SDL_FPoint(stroke1.points[i].x, stroke1.points[i].y));
+						stroke1.points.push_back(SDL_FPoint(strokes.points[i].x, strokes.points[i].y));
 					}
+
+					renderWindow.currCanvas.lines.push_back(stroke1);
+
 					for (size_t i = 0; i < index; ++i) {
-						stroke2.push_back(SDL_FPoint(stroke1.points[i].x, stroke1.points[i].y));
+						stroke2.push_back(SDL_FPoint(strokes.points[i].x, strokes.points[i].y));
 					}
 					strokes.points = stroke2;
+					
 				}
 				redrawScreen(renderer, renderWindow, window);
 			}
