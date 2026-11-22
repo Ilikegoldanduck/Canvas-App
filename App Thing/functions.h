@@ -27,3 +27,4 @@ void moveDrawTabGuiWindow(SDL_Renderer* renderer, totalWindow& renderWindow, gui
 void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window);
 bool drawTab_checkGuiCollision(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window, totalWindow& renderWindow);
 bool checkButtonCollision(float p1, float p2, const Rect& rectangle, const guiWindow guiWindow);
+void erase(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window, bool& running);

@@ -242,6 +242,8 @@ int main()
 					} else if (currCanvas.drawMode == 3) {
 						shapeFirstPoint(mouseX, mouseY, currCanvas);
 						shapeDraw(renderWindow, renderer, window, running);
+					} else if (currCanvas.drawMode == 4) {
+						erase(renderWindow, renderer, window, running);
 					}
 				}
 			} else if (event.type == SDL_EVENT_KEY_DOWN) {

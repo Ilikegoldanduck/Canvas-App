@@ -378,11 +378,26 @@ void erase(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window
 					if (! SDL_PointInRectFloat(&point, &strokes.bounds)) {
 						continue;
 					}
+					size_t index = 0;
 					for (SDL_FPoint strokePoints : strokes.points) {
 						if (std::sqrt(std::pow(strokePoints.x - mouseX, 2) + std::pow(strokePoints.y - mouseY, 2)) < 3) {
-							
+							continue;
+						} else {
+							index = index + 1;
 						}
 					}
+					Stroke stroke1;
+					std::vector<SDL_FPoint> stroke2;
+					stroke1.c = strokes.c;
+					stroke1.t = strokes.t;
+					
+					for (size_t i = index + 1; i < static_cast<int>(strokes.points.size()); ++i) {
+						stroke1.points.push_back(SDL_FPoint(stroke1.points[i].x, stroke1.points[i].y));
+					}
+					for (size_t i = 0; i < index; ++i) {
+						stroke2.push_back(SDL_FPoint(stroke1.points[i].x, stroke1.points[i].y));
+					}
+					strokes.points = stroke2;
 				}
 				redrawScreen(renderer, renderWindow, window);
 			}
