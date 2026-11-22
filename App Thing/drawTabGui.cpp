@@ -3,6 +3,8 @@
 #include "App Thing.h"
 #include "functions.h"
 
+using namespace std;
+
 bool drawTab_checkGuiCollision(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window, totalWindow& renderWindow)
 {
     float mouseX, mouseY;

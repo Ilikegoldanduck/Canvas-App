@@ -3,6 +3,8 @@
 #include "App Thing.h"
 #include "functions.h"
 
+using namespace std;
+
 bool checkButtonCollision(float p1, float p2, const Rect& rectangle, const guiWindow guiWindow)
 {
     SDL_FPoint pt1 = rectangle.point1;
@@ -45,12 +47,12 @@ Button createButton(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, float r,
 	temp.t = t;
 	temp.round = r;
 	temp.bounds = SDL_FRect(std::min(p1.x, p2.x), std::min(p1.y, p2.y), std::abs(p1.x - p2.x), std::abs(p1.y - p2.y));
+	
+	createRoundedRectangle(temp);
 
 	button.rect = temp;
 	button.name = name;
 	button.text = text;
-
-	createRoundedRectangle(temp);
 
 	return button;
 }
@@ -169,6 +171,9 @@ void moveDrawTabGuiWindow(SDL_Renderer* renderer, totalWindow& renderWindow, gui
 	float windowX = drawTab.x;
 	float windowY = drawTab.y;
 
+	int width, height;
+	SDL_GetWindowSize(window, &width, &height);
+
     while (! done) {
         SDL_Event event;
 
@@ -176,8 +181,8 @@ void moveDrawTabGuiWindow(SDL_Renderer* renderer, totalWindow& renderWindow, gui
             if (event.type == SDL_EVENT_MOUSE_BUTTON_UP && event.button.button == SDL_BUTTON_LEFT) {
                 done = true;
             } else if (event.type == SDL_EVENT_MOUSE_MOTION) {
-				drawTab.x = windowX + (event.motion.x - x);
-				drawTab.y = windowY + (event.motion.y - y);
+				drawTab.x = std::max(0.0f, std::min(static_cast<float>(width - drawTab.body.point2.x), windowX + (event.motion.x - x)));
+				drawTab.y = std::max(0.0f, std::min(static_cast<float>(height - drawTab.body.point2.y), windowY + (event.motion.y - y)));
 				redrawScreen(renderer, renderWindow, window);
 			}
         }

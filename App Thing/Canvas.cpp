@@ -3,6 +3,8 @@
 #include "App Thing.h"
 #include "functions.h"
 
+using namespace std;
+
 bool currRect = false;
 
 void createRoundedRectangle(Rect& rectangle)
@@ -236,7 +238,7 @@ void shapeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* wi
 	{
 		SDL_Event event;
 
-		if (SDL_WaitEvent(&event))
+		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS)
 		{
 			if (event.type == SDL_EVENT_QUIT) {
 				done = true;
@@ -269,7 +271,7 @@ void freeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 	{
 		SDL_Event event;
 
-		if (SDL_WaitEvent(&event))
+		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS)
 		{
 			
 			if (event.type == SDL_EVENT_QUIT) {
@@ -287,6 +289,9 @@ void freeDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 				addPoints(mouseX, mouseY, currCanvas);
 				redrawScreen(renderer, renderWindow, window);
 			}
+		} else if (! SDL_WINDOW_MOUSE_FOCUS) {
+			done = true;
+			endPoints(std::nullopt, std::nullopt, currCanvas);
 		}
 
 		if (renderWindow.currCanvas.drawMode != 2) {
@@ -311,7 +316,7 @@ void lineDraw(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* win
 
         SDL_Event event;
 
-		if (SDL_WaitEvent(&event)) {
+		if (SDL_WaitEvent(&event) && SDL_WINDOW_MOUSE_FOCUS) {
             
 			if (event.type == SDL_EVENT_QUIT) {
 				done = true;
