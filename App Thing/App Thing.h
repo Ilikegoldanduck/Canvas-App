@@ -4,6 +4,8 @@
 #pragma once
 
 #include <iostream>
+#include <fstream>
+#include <sstream>
 #include <vector>
 #include <string>
 #include <optional>
@@ -12,7 +14,7 @@
 #include <variant>
 #include <SDL3/SDL.h>
 
-// TODO: Reference additional headers your program requires here.
+// TODO: Reference additional headers your program requires here
 
 struct Stroke
 {

@@ -8,6 +8,100 @@
 
 using namespace std;
 
+void quit(SDL_Window* window, const Canvas& currCanvas)
+{
+	std::ofstream file("canvasSave.txt");
+	
+	if (!file) {
+		SDL_Log("Failed to open save file!");
+		return;
+	}
+
+	for (Stroke strokes : currCanvas.lines) {
+		file << "ss";
+		for (SDL_FPoint points : strokes.points) {
+			file << std::to_string(points.x) + "'" + to_string(points.y) + "|";
+		}
+		file << "se" << std::to_string(strokes.c.r) + "'" + std::to_string(strokes.c.g) + "'" + std::to_string(strokes.c.b) + "'" + std::to_string(strokes.c.a) + "'" + std::to_string(strokes.t) + "\n";
+	}
+	for (Rect rect : currCanvas.shapes) {
+		file << "rs";
+		file << std::to_string(rect.point1.x) + "'" + std::to_string(rect.point1.y) + "|";
+		file << std::to_string(rect.point2.x) + "'" + std::to_string(rect.point2.y) + "|";
+		file << "re" << std::to_string(rect.c.r) + "'" + std::to_string(rect.c.g) + "'" + std::to_string(rect.c.b) + "'" + std::to_string(rect.c.a) + "'" + std::to_string(rect.t) + "'" + std::to_string(rect.round) + "\n";
+	}
+
+	file.close();
+
+	SDL_DestroyWindow(window);
+
+	SDL_Quit();
+}
+
+void load(Canvas& currCanvas, std::string chosenFile)
+{
+	std::ifstream file(chosenFile);
+
+	if (!file) {
+		SDL_Log("No save found!");
+		return;
+	}
+
+	std::string line;
+
+	while (std::getline(file, line)) {
+		if (line.starts_with("ss")) {
+			Stroke stroke;
+
+			size_t end = line.find("se", 2);
+
+			std::string pointsData = line.substr(2, end - 2);
+			std::stringstream pointsStream(pointsData);
+
+			std::string point;
+
+			while (std::getline(pointsStream, point, '|')) {
+				std::stringstream pointStream(point);
+
+				std::string x, y;
+
+				std::getline(pointStream, x, '\'');
+				std::getline(pointStream, y);
+
+				stroke.points.push_back(SDL_FPoint(std::stof(x), std::stof(y)));
+			}
+
+			std::string props = line.substr(end + 2);
+
+			std::stringstream propStream(props);
+
+			std::string vals;
+			std::vector<float> values;
+
+			while (std::getline(propStream, vals, '\'')) {
+				values.push_back(std::stof(vals));
+			}
+
+			stroke.c.r = values[0];
+			stroke.c.g = values[1];
+			stroke.c.b = values[2];
+			stroke.c.a = values[3];
+			stroke.t = values[4];
+
+		} else if (line.starts_with("rs")) {
+			Rect rect;
+
+			size_t end = line.find("re", 2);
+
+			if (end == std::string::npos) {
+				continue;
+			}
+
+
+		}
+	}
+}
+
 int main()
 {
 
@@ -58,6 +152,8 @@ int main()
 	currCanvas.currShape.c = SDL_Color(0, 255, 0, 255);
 	currCanvas.currShape.round = 0;
 
+	load(currCanvas, "canvasSave.txt");
+
 	bool running = true;
 
 	float mouseX, mouseY;
@@ -101,9 +197,5 @@ int main()
 			}
 		}
 	}
-
-	SDL_DestroyWindow(window);
-
-	SDL_Quit();
 	return 0;
 }
