@@ -69,7 +69,7 @@ void renderCurrLine(SDL_Renderer* renderer, float p1, float p2, Canvas currCanva
 
 void renderCurrShape(SDL_Renderer* renderer, float p1, float p2, Canvas currCanvas)
 {
-	SDL_FRect rect = {std::min(currCanvas.currShape.point1.x, p1), std::min(currCanvas.currShape.point1.y, p2), std::abs(currCanvas.currShape.point1.x - p1), std::abs(currCanvas.currShape.point1.y - p2)};
+	SDL_FRect rect = {std::min(currCanvas.currShape.point1.x - currCanvas.c.x, p1), std::min(currCanvas.currShape.point1.y - currCanvas.c.y, p2), std::abs(currCanvas.currShape.point1.x - (p1 + currCanvas.c.x)), std::abs(currCanvas.currShape.point1.y - (p2 + currCanvas.c.y))};
 	
 	SDL_SetRenderDrawColor(renderer, currCanvas.currShape.c.r, currCanvas.currShape.c.g, currCanvas.currShape.c.b, currCanvas.currShape.c.a);
 	SDL_RenderRect(renderer, &rect);
