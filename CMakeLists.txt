@@ -19,19 +19,9 @@ FetchContent_Declare(
   GIT_TAG release-3.2.2
 ) 
 
-message(STATUS "CHECKPOINT 1: Before SDL3")
-
 FetchContent_MakeAvailable(SDL3)
 
-message(STATUS "CHECKPOINT 2: SDL3 finished")
-
 FetchContent_MakeAvailable(SDL3_ttf)
-
-if(TARGET SDL3_ttf::SDL3_ttf)
-    message(STATUS "SDL3_ttf found!")
-else()
-    message(WARNING "SDL3_ttf target missing!")
-endif()
 
 # Enable Hot Reload for MSVC compilers if supported.
 if (POLICY CMP0141)

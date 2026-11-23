@@ -1,2 +1,16 @@
 # Canvas App
 First time using C++ :p 
+This is sorta just a canvas app where you can draw/write anything I guess. 
+
+Install Instructions:
+ - Install .zip file from Releases
+ - Run .exe
+
+How to run:
+ - 1 - Line draw
+ - 2 - Free write
+ - 3 - Box draw
+ - 4 - Erasing (Only works on lines)
+ - Delete the canvasSave file to refresh your save
+ - Arrow keys to move your camera around
+ - No zooming at the moment
