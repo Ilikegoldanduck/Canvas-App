@@ -107,12 +107,24 @@ void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window)
 
 		SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
 
+		if (!font) {
+			std::cout << "blame font";
+			continue;
+		}
 		SDL_Surface* surface = TTF_RenderText_Blended(font, menuButton.text.c_str(), 0, menuObj.c);
 
+		if (!surface) {
+			std::cout << "blame surface";
+			continue;
+		}
 		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
 		SDL_DestroySurface(surface);
 
-		SDL_FRect rect = SDL_FRect(menuObj.point1.x, menuObj.point1.y, (menuObj.point2.x - menuObj.point1.x) / 2, (menuObj.point2.y - menuObj.point1.y) / 2);
+		if (!texture) {
+			std::cout << "blame texture";
+			continue;
+		}
+		SDL_FRect rect = SDL_FRect(menuObj.point1.x + 20 + guiWindow.x, menuObj.point1.y + 20 + guiWindow.y, (menuObj.point2.x - menuObj.point1.x) / 2, (menuObj.point2.y - menuObj.point1.y) / 2);
 		SDL_RenderTexture(renderer, texture, nullptr, &rect);
 		SDL_DestroyTexture(texture);
 	}
