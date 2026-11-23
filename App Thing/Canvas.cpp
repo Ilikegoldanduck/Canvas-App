@@ -105,7 +105,7 @@ void renderLines(SDL_Renderer* renderer, const Canvas& currCanvas, const SDL_FRe
 				transformedxp.push_back({(p.x - currCanvas.c.x) + i, (p.y - currCanvas.c.y)});
 				transformedxn.push_back({(p.x - currCanvas.c.x) - i, (p.y - currCanvas.c.y)});
 				transformedyp.push_back({(p.x - currCanvas.c.x), (p.y - currCanvas.c.y) + i});
-				transformedyn.push_back({(p.x - currCanvas.c.x), (p.y - currCanvas.c.y) + i});
+				transformedyn.push_back({(p.x - currCanvas.c.x), (p.y - currCanvas.c.y) - i});
 			}
 
 			SDL_RenderLines(renderer, transformedxp.data(), static_cast<int>(stroke.points.size()));
@@ -124,7 +124,7 @@ void renderShapes(SDL_Renderer* renderer, const Canvas& currCanvas, const SDL_FR
 	std::vector<SDL_FPoint> transformedyn;
 	for (const Rect rectangle : currCanvas.shapes)
 	{
-		for (int i = 0; i < stroke.t; ++i) 
+		for (int i = 0; i < rectangle.t; ++i)
 		{
 			if (!SDL_HasRectIntersectionFloat(&rectangle.bounds, &viewport))
 			{
@@ -146,7 +146,7 @@ void renderShapes(SDL_Renderer* renderer, const Canvas& currCanvas, const SDL_FR
 				transformedxp.push_back({(p.x - currCanvas.c.x) + i, (p.y - currCanvas.c.y)});
 				transformedxn.push_back({(p.x - currCanvas.c.x) - i, (p.y - currCanvas.c.y)});
 				transformedyp.push_back({(p.x - currCanvas.c.x), (p.y - currCanvas.c.y) + i});
-				transformedyn.push_back({(p.x - currCanvas.c.x), (p.y - currCanvas.c.y) + i});
+				transformedyn.push_back({(p.x - currCanvas.c.x), (p.y - currCanvas.c.y) - i});
 			}
 
 			SDL_RenderLines(renderer, transformedxp.data(), static_cast<int>(rectangle.completedShape.size()));
@@ -177,6 +177,7 @@ void shapeSecondPoint(float p1, float p2, Canvas& currCanvas)
 	currCanvas.currShape = Rect();
 	currCanvas.currShape.c = SDL_Color(0, 255, 0, 255);
 	currCanvas.currShape.round = 0;
+	currCanvas.currShape.t = 3;
 }
 
 void menu(SDL_Renderer* renderer, const std::vector<menuRect> menuBox, SDL_Window* window)

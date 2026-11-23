@@ -152,7 +152,13 @@ void load(Canvas& currCanvas, std::string chosenFile)
 				values.push_back(std::stof(vals));
 			}
 
-			Rect rect = createRect(SDL_FPoint(std::stof(x1), std::stof(y1)), SDL_FPoint(std::stof(x2), std::stof(y2)), SDL_Color(values[0], values[1], values[2], values[3]), values[4], values[5]);
+			Rect rect;
+
+			if (values[4] == 0) {
+				rect = createRect(SDL_FPoint(std::stof(x1), std::stof(y1)), SDL_FPoint(std::stof(x2), std::stof(y2)), SDL_Color(values[0], values[1], values[2], values[3]), 1, values[5]);
+			} else {
+				rect = createRect(SDL_FPoint(std::stof(x1), std::stof(y1)), SDL_FPoint(std::stof(x2), std::stof(y2)), SDL_Color(values[0], values[1], values[2], values[3]), values[4], values[5]);
+			}
 
 			currCanvas.shapes.push_back(rect);
 		}
@@ -208,6 +214,7 @@ int main()
 	currCanvas.currShape = Rect();
 	currCanvas.currShape.c = SDL_Color(0, 255, 0, 255);
 	currCanvas.currShape.round = 0;
+	currCanvas.currShape.t = 3;
 
 	load(currCanvas, "canvasSave.txt");
 
