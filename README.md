@@ -20,4 +20,4 @@ How to run:
  Third Party Licenses:
   - SDL3 was used for window management, input handling and rendering.
   - SDL3_TTF was used in text rendering.
-  - IBMPlexMono_Regular font was used as well for the .ttf
+  - IBMPlexMono_Regular font was used as the font when rendering text.
