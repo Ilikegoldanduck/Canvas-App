@@ -36,6 +36,8 @@ void quit(SDL_Window* window, const Canvas& currCanvas)
 
 	file.close();
 
+	TTF_Quit();
+
 	SDL_DestroyWindow(window);
 
 	SDL_Quit();
@@ -168,7 +170,12 @@ void load(Canvas& currCanvas, std::string chosenFile)
 int main()
 {
 
-	if (!SDL_Init(SDL_INIT_VIDEO))
+	if (! SDL_Init(SDL_INIT_VIDEO))
+	{
+		return 1;
+	}
+
+	if (! TTF_Init())
 	{
 		return 1;
 	}

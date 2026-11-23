@@ -420,7 +420,7 @@ void erase(totalWindow& renderWindow, SDL_Renderer* renderer, SDL_Window* window
 					}
 					int index = -1;
 					for (size_t i = 0; i < strokes.points.size(); ++i) {
-						if (std::pow(strokes.points[i].x - mouseX, 2) + std::pow(strokes.points[i].y - mouseY, 2) < 9) {
+						if (std::pow(strokes.points[i].x - mouseX, 2) + std::pow(strokes.points[i].y - mouseY, 2) < 25) {
 							index = i;
 							break;
 						}

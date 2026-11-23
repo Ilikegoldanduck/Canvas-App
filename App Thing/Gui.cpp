@@ -2,6 +2,7 @@
 
 #include "App Thing.h"
 #include "functions.h"
+#include <SDL3_ttf/SDL_ttf.h>
 
 using namespace std;
 
@@ -69,6 +70,8 @@ menuRect createMenuRect(SDL_FPoint p1, SDL_FPoint p2, SDL_Color c, float t, floa
 
 void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window)
 {
+	TTF_Font* font = TTF_OpenFont("assets/IBMPlexMono-Regular.ttf", 20);
+
 	Rect rect = guiWindow.body;
 	std::vector<SDL_FPoint> temp;
 	for (SDL_FPoint temptemp : rect.completedShape) {
@@ -102,10 +105,16 @@ void renderMenu(guiWindow guiWindow, SDL_Renderer* renderer, SDL_Window* window)
 			temp.push_back(temptemp);
 		}
 
-		
-		//SDL_RenderDebugText(renderer, menuButton.rect.point1.x, menuButton.rect.point1.y, menuButton.text);
-
 		SDL_RenderLines(renderer, temp.data(), static_cast<int>(temp.size()));
+
+		SDL_Surface* surface = TTF_RenderText_Blended(font, menuButton.text.c_str(), 0, menuObj.c);
+
+		SDL_Texture* texture = SDL_CreateTextureFromSurface(renderer, surface);
+		SDL_DestroySurface(surface);
+
+		SDL_FRect rect = SDL_FRect(menuObj.point1.x, menuObj.point1.y, (menuObj.point2.x - menuObj.point1.x) / 2, (menuObj.point2.y - menuObj.point1.y) / 2);
+		SDL_RenderTexture(renderer, texture, nullptr, &rect);
+		SDL_DestroyTexture(texture);
 	}
 }
 
@@ -200,10 +209,10 @@ void createDrawWindow(guiWindow& drawWindow)
     drawWindow.body = createRect(SDL_FPoint(0, 0), SDL_FPoint(50, 250), SDL_Color(255, 0, 0, 255), 1, 25);
     drawWindow.shapes.push_back(createRect(SDL_FPoint(0, 50), SDL_FPoint(50, 250), SDL_Color(255, 0, 0, 255), 1, 20));
 
-	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 50), SDL_FPoint(50, 100), SDL_Color(255, 0, 0, 255), 1, 20, "lineDraw", ""));
-	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 100), SDL_FPoint(50, 150), SDL_Color(255, 0, 0, 255), 1, 20, "freeDraw", ""));
-	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 150), SDL_FPoint(50, 200), SDL_Color(255, 0, 0, 255), 1, 20, "shapeDraw", ""));
-	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 200), SDL_FPoint(50, 250), SDL_Color(255, 0, 0, 255), 1, 20, "erase", ""));
+	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 50), SDL_FPoint(50, 100), SDL_Color(255, 0, 0, 255), 1, 20, "lineDraw", "line"));
+	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 100), SDL_FPoint(50, 150), SDL_Color(255, 0, 0, 255), 1, 20, "freeDraw", "write"));
+	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 150), SDL_FPoint(50, 200), SDL_Color(255, 0, 0, 255), 1, 20, "shapeDraw", "box"));
+	drawWindow.buttons.push_back(createButton(SDL_FPoint(0, 200), SDL_FPoint(50, 250), SDL_Color(255, 0, 0, 255), 1, 20, "erase", "erase"));
 
 	drawWindow.x = 0;
 	drawWindow.y = 0;
