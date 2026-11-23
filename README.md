@@ -16,3 +16,7 @@ How to run:
  - Delete the canvasSave file to refresh your save
  - Arrow keys to move your camera around
  - No zooming at the moment
+
+ Third Party Licenses:
+  - SDL3 was used for window management, input handling and rendering.
+  - SDL3_TTF was used in text rendering.
