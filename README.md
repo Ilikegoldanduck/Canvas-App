@@ -1,5 +1,5 @@
 # Canvas App
-First time using C++ :p 
+First time using C++ :p
 This is sorta just a canvas app where you can draw/write anything I guess. 
 
 Install Instructions:
@@ -20,3 +20,4 @@ How to run:
  Third Party Licenses:
   - SDL3 was used for window management, input handling and rendering.
   - SDL3_TTF was used in text rendering.
+  - IBMPlexMono_Regular font was used as well for the .ttf
