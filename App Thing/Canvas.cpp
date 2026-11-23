@@ -77,53 +77,83 @@ void renderCurrShape(SDL_Renderer* renderer, float p1, float p2, Canvas currCanv
 
 void renderLines(SDL_Renderer* renderer, const Canvas& currCanvas, const SDL_FRect& viewport)
 {	
-	std::vector<SDL_FPoint> transformed;
+	std::vector<SDL_FPoint> transformedxp;
+	std::vector<SDL_FPoint> transformedxn;
+	std::vector<SDL_FPoint> transformedyp;
+	std::vector<SDL_FPoint> transformedyn;
 	for (const Stroke& stroke : currCanvas.lines)
 	{
-		if (!SDL_HasRectIntersectionFloat(&stroke.bounds, &viewport))
+		for (int i = 0; i < stroke.t; ++i) 
 		{
-			continue;
+			if (!SDL_HasRectIntersectionFloat(&stroke.bounds, &viewport))
+			{
+				continue;
+			}
+			SDL_SetRenderDrawColor(renderer, stroke.c.r, stroke.c.g, stroke.c.b, stroke.c.a);
+
+			transformedxp.clear();
+			transformedxn.clear();
+			transformedyp.clear();
+			transformedyn.clear();
+			transformedxp.reserve(stroke.points.size());
+			transformedxn.reserve(stroke.points.size());
+			transformedyp.reserve(stroke.points.size());
+			transformedyn.reserve(stroke.points.size());
+
+			for (const SDL_FPoint& p : stroke.points)
+			{
+				transformedxp.push_back({(p.x - currCanvas.c.x) + i, (p.y - currCanvas.c.y)});
+				transformedxn.push_back({(p.x - currCanvas.c.x) - i, (p.y - currCanvas.c.y)});
+				transformedyp.push_back({(p.x - currCanvas.c.x), (p.y - currCanvas.c.y) + i});
+				transformedyn.push_back({(p.x - currCanvas.c.x), (p.y - currCanvas.c.y) + i});
+			}
+
+			SDL_RenderLines(renderer, transformedxp.data(), static_cast<int>(stroke.points.size()));
+			SDL_RenderLines(renderer, transformedxn.data(), static_cast<int>(stroke.points.size()));
+			SDL_RenderLines(renderer, transformedyp.data(), static_cast<int>(stroke.points.size()));
+			SDL_RenderLines(renderer, transformedyn.data(), static_cast<int>(stroke.points.size()));
 		}
-		SDL_SetRenderDrawColor(renderer, stroke.c.r, stroke.c.g, stroke.c.b, stroke.c.a);
-
-		transformed.clear();
-		transformed.reserve(stroke.points.size());
-
-		for (const SDL_FPoint& p : stroke.points)
-		{
-			transformed.push_back({
-				(p.x - currCanvas.c.x),
-				(p.y - currCanvas.c.y)
-			});
-		}
-
-		SDL_RenderLines(renderer, transformed.data(), static_cast<int>(stroke.points.size()));
 	}
 }
 
 void renderShapes(SDL_Renderer* renderer, const Canvas& currCanvas, const SDL_FRect& viewport)
 {
-	std::vector<SDL_FPoint> transformed;
+	std::vector<SDL_FPoint> transformedxp;
+	std::vector<SDL_FPoint> transformedxn;
+	std::vector<SDL_FPoint> transformedyp;
+	std::vector<SDL_FPoint> transformedyn;
 	for (const Rect rectangle : currCanvas.shapes)
 	{
-		if (!SDL_HasRectIntersectionFloat(&rectangle.bounds, &viewport))
+		for (int i = 0; i < stroke.t; ++i) 
 		{
-			continue;
+			if (!SDL_HasRectIntersectionFloat(&rectangle.bounds, &viewport))
+			{
+				continue;
+			}
+			SDL_SetRenderDrawColor(renderer, rectangle.c.r, rectangle.c.g, rectangle.c.b, rectangle.c.a);
+
+			transformedxp.clear();
+			transformedxn.clear();
+			transformedyp.clear();
+			transformedyn.clear();
+			transformedxp.reserve(rectangle.completedShape.size());
+			transformedxn.reserve(rectangle.completedShape.size());
+			transformedyp.reserve(rectangle.completedShape.size());
+			transformedyn.reserve(rectangle.completedShape.size());
+
+			for (const SDL_FPoint& p : rectangle.completedShape)
+			{
+				transformedxp.push_back({(p.x - currCanvas.c.x) + i, (p.y - currCanvas.c.y)});
+				transformedxn.push_back({(p.x - currCanvas.c.x) - i, (p.y - currCanvas.c.y)});
+				transformedyp.push_back({(p.x - currCanvas.c.x), (p.y - currCanvas.c.y) + i});
+				transformedyn.push_back({(p.x - currCanvas.c.x), (p.y - currCanvas.c.y) + i});
+			}
+
+			SDL_RenderLines(renderer, transformedxp.data(), static_cast<int>(rectangle.completedShape.size()));
+			SDL_RenderLines(renderer, transformedxn.data(), static_cast<int>(rectangle.completedShape.size()));
+			SDL_RenderLines(renderer, transformedyp.data(), static_cast<int>(rectangle.completedShape.size()));
+			SDL_RenderLines(renderer, transformedyn.data(), static_cast<int>(rectangle.completedShape.size()));
 		}
-		SDL_SetRenderDrawColor(renderer, rectangle.c.r, rectangle.c.g, rectangle.c.b, rectangle.c.a);
-
-		transformed.clear();
-		transformed.reserve(rectangle.completedShape.size());
-
-		for (const SDL_FPoint& p : rectangle.completedShape)
-		{
-			transformed.push_back({
-				(p.x - currCanvas.c.x),
-				(p.y - currCanvas.c.y)
-			});
-		}
-
-		SDL_RenderLines(renderer, transformed.data(), static_cast<int>(rectangle.completedShape.size()));
 	}
 }
 
